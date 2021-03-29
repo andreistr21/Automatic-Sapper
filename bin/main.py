@@ -80,13 +80,11 @@ class Player(object):
     # Drawing rectangle
     def Rectangle(self):
         field_canvas.create_rectangle(self.current_x, self.current_y, self.current_x + self.step - 2,
-                                      self.current_y + self.step - 2, width=3, outline='red')
+                                      self.current_y + self.step - 2, width=3, outline='blue2')
 
 
 def DrawingLargeImage():
     large_img_name = large_image_array[player.current_array_y][player.current_array_x]
-    # large_img_path = f"{large_directory}/{large_img_name}"
-    # large_img = PhotoImage(file=large_img_path)
 
     large_image_canvas.image = large_img_name
     large_image_canvas.create_image(0, 0, anchor=NW, image=large_img_name)
@@ -106,22 +104,31 @@ class Field(object):
     def Fill(self):
         x = self.x_start
         y = self.y_start
+
         row = 0
         column = 0
+
+        # Drawing small images
         for i in range(self.columns):
             for j in range(self.rows):
                 small_image_name = small_image_array[column][row]
-                # small_image_path = f"{small_directory}/{small_image_name}"
-                # small_img = PhotoImage(file=small_image_path)
 
                 field_canvas.image = small_image_name
                 field_canvas.create_image(x, y, anchor=NW, image=small_image_name)
+
                 x += self.image_size + self.x_start
                 row += 1
             y += self.image_size + self.y_start
             x = self.x_start
             column += 1
             row = 0
+
+        # Drawing red/green rectangles
+        for el in state_of_cell_array:
+            if el[0] != 0:
+                field_canvas.create_rectangle(el[0], el[1], el[0] + player.step - 2,
+                                              el[1] + player.step - 2, width=3, outline=el[2])
+
         DrawingLargeImage()
 
 
@@ -140,13 +147,38 @@ def ImagesInArray(directory, array):
             row += 1
 
 
+def CellDesignation(array, color):
+    for element in array:
+        if element[0] == 0:
+            element[0] = player.current_x
+            element[1] = player.current_y
+            element[2] = color
+            break
+
+
+def Action(event):
+    global state_of_cell_array
+
+    if event.keysym in ["Right", "Left", "Up", "Down"]:
+        player.Moving(event)
+    elif event.keysym in ["1", "2"]:
+        if event.keysym == "1":
+            CellDesignation(state_of_cell_array, "red")
+        else:
+            CellDesignation(state_of_cell_array, "green")
+
+
 def main():
     # Creating the main window of an application
     window_size = f'{WINDOW_X}x{WINDOW_Y}'
     global window
     window = Tk()
     window.title("Sapper")
+    window.configure(bg='gray')
     window.geometry(window_size)
+
+    global state_of_cell_array
+    state_of_cell_array = [[0 for i in range(3)] for j in range(200)]
 
     # Creating objects
     global player
@@ -169,29 +201,25 @@ def main():
     ImagesInArray(small_directory, small_image_array)
 
     # Creating the frames
-    main_frame = Frame(master, width=FRAME_WIDTH, height=FRAME_HEIGHT, bd=1)
+    main_frame = Frame(master, width=FRAME_WIDTH, height=FRAME_HEIGHT, bd=0)
     main_frame.pack(anchor=NW)
 
     # Creating the canvas
     global field_canvas
-    field_canvas = Canvas(main_frame, width=FRAME_WIDTH, height=FRAME_HEIGHT, bg='white')
+    field_canvas = Canvas(main_frame, width=FRAME_WIDTH, height=FRAME_HEIGHT, highlightthickness=0, bg='light gray')
     field_canvas.pack()
 
     # Creating the canvas for large image
     global large_image_canvas
-    large_image_canvas = Canvas(window, width=WINDOW_X - 533 - 20, height=900, bg='white')
+    large_image_canvas = Canvas(window, width=WINDOW_X - 533 - 20, height=900, highlightthickness=0, bg='gray')
     large_image_canvas.place(x=FRAME_WIDTH + 5, y=player.y_start)
-
-    # Loading image
-    global img
-    img = PhotoImage(file="../files/small_images/image.png")
 
     # Filling window with images
     Field.Fill(field)
     # Drawing rectangle (player)
     Player.Rectangle(player)
     # Binding keyboard press to function
-    window.bind("<Key>", player.Moving)
+    window.bind("<Key>", Action)
     # Starting mainloop for window
     window.mainloop()
 
