@@ -19,32 +19,13 @@ field = Field()
 
 # Putting images
 def Fill():
-    x = field.x_start
-    y = field.y_start
-
-    row = 0
-    column = 0
-
-    # Drawing small images
-    for i in range(field.columns):
-        for j in range(field.rows):
-            small_image_name = field.small_image_array[column][row]
-
-            field.small_field_canvas.image = small_image_name
-            field.small_field_canvas.create_image(x, y, anchor=NW, image=small_image_name)
-
-            x += field.image_size + field.x_start
-            row += 1
-        y += field.image_size + field.y_start
-        x = field.x_start
-        column += 1
-        row = 0
+    field.PuttingSmallImages()
 
     # Drawing red/green rectangles
     for el in field.state_of_cell_array:
         if el[0] != 0:
             field.small_field_canvas.create_rectangle(el[0], el[1], el[0] + player.step - 2,
-                                                     el[1] + player.step - 2, width=3, outline=el[2])
+                                                      el[1] + player.step - 2, width=3, outline=el[2])
 
     DrawingLargeImage()
 
@@ -52,8 +33,7 @@ def Fill():
 def DrawingLargeImage():
     large_img_name = field.large_image_array[player.current_array_y][player.current_array_x]
 
-    field.large_image_canvas.image = large_img_name
-    field.large_image_canvas.create_image(0, 0, anchor=NW, image=large_img_name)
+    field.PuttingLargeImage(large_img_name)
 
 
 # Drawing rectangle
@@ -65,55 +45,25 @@ def Rectangle():
 def Moving(event):
     # Moving
     if event.keysym == "Right":
-        if player.current_x + player.step < FRAME_WIDTH:
-            player.current_x += player.step
-            field.small_field_canvas.delete('all')
-            field.large_image_canvas.delete('all')
-            player.current_array_x += 1
-            Fill()
-            Rectangle()
-        elif player.current_y + player.step < FRAME_HEIGHT:
-            player.current_x = player.x_start
-            field.small_field_canvas.delete('all')
-            field.large_image_canvas.delete('all')
-            player.current_array_x = 0
-            player.current_array_y += 1
-            player.current_y += player.step
-            Fill()
-            Rectangle()
+        player.MovingRight()
+        field.Moving()
+        Fill()
+        Rectangle()
     elif event.keysym == "Left":
-        if player.current_x - player.step >= player.x_start:
-            player.current_x -= player.step
-            field.small_field_canvas.delete('all')
-            field.large_image_canvas.delete('all')
-            player.current_array_x -= 1
-            Fill()
-            Rectangle()
-        elif player.current_y - player.step >= player.y_start:
-            player.current_x = FRAME_WIDTH - player.step
-            field.small_field_canvas.delete('all')
-            field.large_image_canvas.delete('all')
-            player.current_array_x = 9
-            player.current_array_y -= 1
-            player.current_y -= player.step
-            Fill()
-            Rectangle()
+        player.MovingLeft()
+        field.Moving()
+        Fill()
+        Rectangle()
     elif event.keysym == "Up":
-        if player.current_y - player.step >= player.y_start:
-            player.current_y -= player.step
-            field.small_field_canvas.delete('all')
-            field.large_image_canvas.delete('all')
-            player.current_array_y -= 1
-            Fill()
-            Rectangle()
+        player.MovingUp()
+        field.Moving()
+        Fill()
+        Rectangle()
     elif event.keysym == "Down":
-        if player.current_y + player.step < FRAME_HEIGHT:
-            player.current_y += player.step
-            field.small_field_canvas.delete('all')
-            field.large_image_canvas.delete('all')
-            player.current_array_y += 1
-            Fill()
-            Rectangle()
+        player.MovingDown()
+        field.Moving()
+        Fill()
+        Rectangle()
 
 
 def ImagesInArray(directory, array):
@@ -156,8 +106,6 @@ def Action(event):
 def main():
     # Creating the main window of an application
     win_size = f'{WINDOW_X}x{WINDOW_Y}'
-    # global win
-    # win = Tk()
     field.win.title("Sapper")
     field.win.configure(bg='gray')
     field.win.geometry(win_size)

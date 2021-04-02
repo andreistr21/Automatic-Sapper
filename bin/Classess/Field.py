@@ -38,40 +38,33 @@ class Field(object):
                                          bg='gray')
         self.large_image_canvas.place(x=FRAME_WIDTH + 5, y=3)
 
-    # # Putting images
-    # def Fill(self):
-    #     x = self.x_start
-    #     y = self.y_start
-    #
-    #     row = 0
-    #     column = 0
-    #
-    #     # Drawing small images
-    #     for i in range(self.columns):
-    #         for j in range(self.rows):
-    #             small_image_name = self.small_image_array[column][row]
-    #
-    #             self.small_field_canvas.image = small_image_name
-    #             self.small_field_canvas.create_image(x, y, anchor=NW, image=small_image_name)
-    #
-    #             x += self.image_size + self.x_start
-    #             row += 1
-    #         y += self.image_size + self.y_start
-    #         x = self.x_start
-    #         column += 1
-    #         row = 0
-    #
-    #     # Drawing red/green rectangles
-    #     for el in self.state_of_cell_array:
-    #         if el[0] != 0:
-    #             self.small_field_canvas.create_rectangle(el[0], el[1], el[0] + step - 2,
-    #                                                      el[1] + step - 2, width=3, outline=el[2])
-    #
-    #     DrawingLargeImage()
-        # self.DrawingLargeImage()
+    # Clear Canvases
+    def Moving(self):
+        self.small_field_canvas.delete('all')
+        self.large_image_canvas.delete('all')
 
-    # def DrawingLargeImage(self):
-    #     large_img_name = self.large_image_array[player.current_array_y][player.current_array_x]
-    #
-    #     self.large_image_canvas.image = large_img_name
-    #     self.large_image_canvas.create_image(0, 0, anchor=NW, image=large_img_name)
+    def PuttingSmallImages(self):
+        x = self.x_start
+        y = self.y_start
+
+        row = 0
+        column = 0
+
+        # Putting small images
+        for i in range(self.columns):
+            for j in range(self.rows):
+                small_image_name = self.small_image_array[column][row]
+
+                self.small_field_canvas.image = small_image_name
+                self.small_field_canvas.create_image(x, y, anchor=NW, image=small_image_name)
+
+                x += self.image_size + self.x_start
+                row += 1
+            y += self.image_size + self.y_start
+            x = self.x_start
+            column += 1
+            row = 0
+
+    def PuttingLargeImage(self, large_img_name):
+        self.large_image_canvas.image = large_img_name
+        self.large_image_canvas.create_image(0, 0, anchor=NW, image=large_img_name)
