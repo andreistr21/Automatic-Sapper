@@ -1,9 +1,6 @@
 from doctest import master
 from tkinter import *
 
-# from bin.main import PlayerReturn as player
-# from bin.main import DrawingLargeImage
-
 WINDOW_X = 533 + 1200
 WINDOW_Y = 950
 FRAME_WIDTH = 533
@@ -26,6 +23,7 @@ class Field(object):
         self.x_start = 3
         self.y_start = 3
         self.state_of_cell_array = [[0 for i in range(3)] for j in range(200)]
+        self.field_state_array = [[False for i in range(self.rows)] for j in range(self.columns)]
         self.small_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
         self.large_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
 
@@ -33,6 +31,7 @@ class Field(object):
         self.main_frame.pack(anchor=NW)
         self.small_field_canvas = Canvas(self.main_frame, width=FRAME_WIDTH, height=FRAME_HEIGHT, highlightthickness=0,
                                          bg='light gray')
+
         self.small_field_canvas.pack()
         self.large_image_canvas = Canvas(self.win, width=WINDOW_X - 533 - 20, height=900, highlightthickness=0,
                                          bg='gray')

@@ -1,5 +1,3 @@
-import sys
-
 WINDOW_X = 533 + 1200
 WINDOW_Y = 950
 FRAME_WIDTH = 533
