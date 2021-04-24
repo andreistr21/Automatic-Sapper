@@ -1,10 +1,10 @@
+import os
 import random
 from tkinter import *
-import os
 
-from bin.classess.Player import Player
 from bin.classess.Field import Field
 from bin.classess.Mine import Mine
+from bin.classess.Player import Player
 
 WINDOW_X = 533 + 1200
 WINDOW_Y = 950
@@ -19,6 +19,20 @@ AMOUNT_OF_MINES = 10
 # Creating objects
 player = Player()
 field = Field()
+
+
+def Arrow(direction):
+    image = ""
+    if direction == "north":
+        image = player.arrow_north_image
+    elif direction == "south":
+        image = player.arrow_south_image
+    elif direction == "west":
+        image = player.arrow_west_image
+    elif direction == "east":
+        image = player.arrow_east_image
+
+    field.small_field_canvas.create_image(player.current_x, player.current_y, anchor=NW, image=image)
 
 
 # Putting images
@@ -46,28 +60,48 @@ def Rectangle():
                                               player.current_y + player.step - 2, width=3, outline='blue2')
 
 
+def Next_direction(side):
+    # Define next direction
+    current_direction = player.direction
+    t = -1
+    for i in range(4):
+        if player.directions[i] == current_direction:
+            t = i
+            break
+
+    # Write next direction to Player
+    if side == "Right":
+        player.direction = player.directions[(t + 1) % 4]
+    elif side == "Left":
+        player.direction = player.directions[(t - 1) % 4]
+
+    return player.direction
+
+
 def Moving(event):
     # Moving
     if event.keysym == "Right":
-        player.MovingRight()
+        # player.MovingRight()
         field.Moving()
         Fill()
-        Rectangle()
+        next_direction = Next_direction(event.keysym)
+        Arrow(next_direction)
     elif event.keysym == "Left":
-        player.MovingLeft()
+        # player.MovingLeft()
         field.Moving()
         Fill()
-        Rectangle()
+        next_direction = Next_direction(event.keysym)
+        Arrow(next_direction)
     elif event.keysym == "Up":
-        player.MovingUp()
+        player.Moving()
         field.Moving()
         Fill()
-        Rectangle()
-    elif event.keysym == "Down":
-        player.MovingDown()
-        field.Moving()
-        Fill()
-        Rectangle()
+        Arrow(player.direction)
+    # elif event.keysym == "space":
+    #     player.MovingDown()
+    #     field.Moving()
+    #     Fill()
+    #     Arrow(player.arrow_south_image)
 
 
 def ImagesInArray(directory, array):
@@ -108,7 +142,7 @@ def CellDesignation(array, color):
 
 
 def Action(event):
-    if event.keysym in ["Right", "Left", "Up", "Down"]:
+    if event.keysym in ["Right", "Left", "Up", "space"]:
         Moving(event)
     elif event.keysym in ["1", "2"]:
         if event.keysym == "1":
@@ -199,10 +233,23 @@ def main():
     large_directory = "../../files/large_images"
     ImagesInArray(large_directory, field.large_image_array)
 
+    # Add arrow image to Player class
+    images = []
+    for file in os.listdir("../../files/arrow"):
+        path = f"../../files/arrow/{file}"
+        img = PhotoImage(master=field.small_field_canvas, file=path)
+        images.append(img)
+
+    player.arrow_east_image = images[0]
+    player.arrow_north_image = images[1]
+    player.arrow_south_image = images[2]
+    player.arrow_west_image = images[3]
+
     # Filling window with images
     Fill()
-    # Drawing rectangle (player)
-    Rectangle()
+    # Drawing arrow (player)
+    Arrow(player.direction)
+    # Rectangle()
     # Binding keyboard press to function
     field.win.bind("<Key>", Action)
     # Starting mainloop for window

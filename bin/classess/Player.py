@@ -16,26 +16,34 @@ class Player(object):
         self.step = IMAGE_SIZE + self.x_start
         self.current_array_x = 0
         self.current_array_y = 0
+        self.direction = "east"
+        self.directions = ["north", "east", "south", "west"]
+        self.arrow_north_image = None
+        self.arrow_south_image = None
+        self.arrow_west_image = None
+        self.arrow_east_image = None
 
     def MovingRight(self):
         if self.current_x + self.step < FRAME_WIDTH:
             self.current_x += self.step
             self.current_array_x += 1
-        elif self.current_y + self.step < FRAME_HEIGHT:
-            self.current_x = self.x_start
-            self.current_array_x = 0
-            self.current_array_y += 1
-            self.current_y += self.step
+        # # Changes the line down
+        # elif self.current_y + self.step < FRAME_HEIGHT:
+        #     self.current_x = self.x_start
+        #     self.current_array_x = 0
+        #     self.current_array_y += 1
+        #     self.current_y += self.step
 
     def MovingLeft(self):
         if self.current_x - self.step >= self.x_start:
             self.current_x -= self.step
             self.current_array_x -= 1
-        elif self.current_y - self.step >= self.y_start:
-            self.current_x = FRAME_WIDTH - self.step
-            self.current_array_x = 9
-            self.current_array_y -= 1
-            self.current_y -= self.step
+        # # Changes the line up
+        # elif self.current_y - self.step >= self.y_start:
+        #     self.current_x = FRAME_WIDTH - self.step
+        #     self.current_array_x = 9
+        #     self.current_array_y -= 1
+        #     self.current_y -= self.step
 
     def MovingUp(self):
         if self.current_y - self.step >= self.y_start:
@@ -46,3 +54,13 @@ class Player(object):
         if self.current_y + self.step < FRAME_HEIGHT:
             self.current_y += self.step
             self.current_array_y += 1
+
+    def Moving(self):
+        if self.direction == "north":
+            self.MovingUp()
+        if self.direction == "south":
+            self.MovingDown()
+        if self.direction == "west":
+            self.MovingLeft()
+        if self.direction == "east":
+            self.MovingRight()
