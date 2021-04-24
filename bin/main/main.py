@@ -2,10 +2,10 @@ import os
 import random
 from tkinter import *
 
-from bin.classess.Field import Field
-from bin.classess.Mine import Mine
-from bin.classess.Player import Player
-from bin.classess.Node import Node
+from bin.Classess.Field import Field
+from bin.Classess.Mine import Mine
+from bin.Classess.Player import Player
+import bin.Classess.Node as nd
 
 WINDOW_X = 533 + 1200
 WINDOW_Y = 950
@@ -54,22 +54,6 @@ def DrawingLargeImage():
     large_img_name = field.large_image_array[player.current_array_y][player.current_array_x]
 
     field.PuttingLargeImage(large_img_name)
-
-
-# Drawing rectangle
-# def Rectangle(bool, direction):
-#     if bool:
-#         field.rectangle = field.small_field_canvas.create_rectangle(player.current_x, player.current_y, player.current_x + player.step - 2,
-#                                                   player.current_y + player.step - 2, width=3, outline='blue2')
-#     else:
-#         if direction == "East" and field.small_field_canvas.coords(field.rectangle)[0] + player.step < FRAME_WIDTH:
-#             field.small_field_canvas.move(field.rectangle, player.step, 0)
-#         elif direction == "West" and field.small_field_canvas.coords(field.rectangle)[0] > player.x_start:
-#             field.small_field_canvas.move(field.rectangle, -player.step, 0)
-#         elif direction == "North" and field.small_field_canvas.coords(field.rectangle)[1] > player.y_start:
-#             field.small_field_canvas.move(field.rectangle, 0, -player.step)
-#         elif direction == "South" and field.small_field_canvas.coords(field.rectangle)[1] + player.step < FRAME_HEIGHT:
-#             field.small_field_canvas.move(field.rectangle, 0, player.step)
 
 
 def Next_direction(side):
@@ -181,14 +165,32 @@ def MouseClickEvent(event):
     for i in range(0, len(field.canvas_small_images)):
         print(field.small_field_canvas.coords(field.canvas_small_images[i]))
     print("Lewy przycisk myszy zostal nacisniety!")
-    node = Node()
+    node = nd.Node()
     print(node.state.coord, node.state.direction, node.action, node.parent)
-    node.state.coord = field.small_field_canvas.coords(field.canvas_small_images[5])
-    node.state.direction = "N"
-    node.action = "l"
-    node.parent = 1
-    print(node.state.coord, node.state.direction, node.parent, node.action)
+    node.state = nd.State()
+    node.state.coord = field.small_field_canvas.coords(player.image_canvas_id)
+    node.state.direction = "east"
+    #node.state.coord = field.small_field_canvas.coords(field.canvas_small_images[5])
+
+    start_position = field.small_field_canvas.coords(player.image_canvas_id)
+    end_position = []
+    print("Pierwsza pozycja: {} {}".format(start_position[0], start_position[1]))
+
+
+    #print(node.state.coord, node.state.direction, node.parent, node.action)
     print("Pozycje myszy: {} {}".format(event.x, event.y))
+
+    for i in range(0, len(field.canvas_small_images)):
+        img_coords = field.small_field_canvas.coords(field.canvas_small_images[i])
+        if (img_coords[0] <= event.x and event.x <= img_coords[0] + IMAGE_SIZE) and (img_coords[1] <= event.y and event.y <= img_coords[1] + IMAGE_SIZE):
+            end_position = img_coords
+    if len(end_position) == 2:
+        print("Koncowa pozycja: {} {}".format(end_position[0], end_position[1]))
+
+    # Successor - only east
+    list_node_state = nd.successor(node.state)
+    for i in range(0, len(list_node_state)):
+        print('Node{} = State: {} {}, Parent: {} {}, Action: {}'.format(i + 1, list_node_state[i].state.coord, list_node_state[i].state.direction, list_node_state[i].parent.coord, list_node_state[i].parent.direction, list_node_state[i].action))
 
 
 def PutMines(mines_array):
