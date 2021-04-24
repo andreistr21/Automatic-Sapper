@@ -5,6 +5,7 @@ from tkinter import *
 from bin.classess.Field import Field
 from bin.classess.Mine import Mine
 from bin.classess.Player import Player
+from bin.classess.Node import Node
 
 WINDOW_X = 533 + 1200
 WINDOW_Y = 950
@@ -32,12 +33,13 @@ def Arrow(direction):
     elif direction == "east":
         image = player.arrow_east_image
 
-    field.small_field_canvas.create_image(player.current_x, player.current_y, anchor=NW, image=image)
+    field.small_field_canvas.itemconfig(player.image_canvas_id, image=image)
 
 
 # Putting images
-def Fill():
-    field.PuttingSmallImages()
+def Fill(bool):
+    if bool:
+        field.PuttingSmallImages()
 
     # Drawing red/green rectangles
     for el in field.state_of_cell_array:
@@ -55,9 +57,19 @@ def DrawingLargeImage():
 
 
 # Drawing rectangle
-def Rectangle():
-    field.small_field_canvas.create_rectangle(player.current_x, player.current_y, player.current_x + player.step - 2,
-                                              player.current_y + player.step - 2, width=3, outline='blue2')
+# def Rectangle(bool, direction):
+#     if bool:
+#         field.rectangle = field.small_field_canvas.create_rectangle(player.current_x, player.current_y, player.current_x + player.step - 2,
+#                                                   player.current_y + player.step - 2, width=3, outline='blue2')
+#     else:
+#         if direction == "East" and field.small_field_canvas.coords(field.rectangle)[0] + player.step < FRAME_WIDTH:
+#             field.small_field_canvas.move(field.rectangle, player.step, 0)
+#         elif direction == "West" and field.small_field_canvas.coords(field.rectangle)[0] > player.x_start:
+#             field.small_field_canvas.move(field.rectangle, -player.step, 0)
+#         elif direction == "North" and field.small_field_canvas.coords(field.rectangle)[1] > player.y_start:
+#             field.small_field_canvas.move(field.rectangle, 0, -player.step)
+#         elif direction == "South" and field.small_field_canvas.coords(field.rectangle)[1] + player.step < FRAME_HEIGHT:
+#             field.small_field_canvas.move(field.rectangle, 0, player.step)
 
 
 def Next_direction(side):
@@ -78,24 +90,36 @@ def Next_direction(side):
     return player.direction
 
 
+def MovingForward():
+    if player.direction == "east" and field.small_field_canvas.coords(player.image_canvas_id)[0] + player.step < FRAME_WIDTH:
+        field.small_field_canvas.move(player.image_canvas_id, player.step, 0)
+    elif player.direction == "west" and field.small_field_canvas.coords(player.image_canvas_id)[0] > player.x_start:
+        field.small_field_canvas.move(player.image_canvas_id, -player.step, 0)
+    elif player.direction == "north" and field.small_field_canvas.coords(player.image_canvas_id)[1] > player.y_start:
+        field.small_field_canvas.move(player.image_canvas_id, 0, -player.step)
+    elif player.direction == "south" and field.small_field_canvas.coords(player.image_canvas_id)[1] + player.step < FRAME_HEIGHT:
+        field.small_field_canvas.move(player.image_canvas_id, 0, player.step)
+
+
 def Moving(event):
     # Moving
     if event.keysym == "Right":
         # player.MovingRight()
         field.Moving()
-        Fill()
+        Fill(False)
         next_direction = Next_direction(event.keysym)
         Arrow(next_direction)
     elif event.keysym == "Left":
         # player.MovingLeft()
         field.Moving()
-        Fill()
+        Fill(False)
         next_direction = Next_direction(event.keysym)
         Arrow(next_direction)
     elif event.keysym == "Up":
         player.Moving()
         field.Moving()
-        Fill()
+        Fill(False)
+        MovingForward()
         Arrow(player.direction)
     # elif event.keysym == "space":
     #     player.MovingDown()
@@ -149,6 +173,22 @@ def Action(event):
             CellDesignation(field.state_of_cell_array, "red")
         else:
             CellDesignation(field.state_of_cell_array, "green")
+
+
+# Modified by Artem to search in the status area
+def MouseClickEvent(event):
+    print(len(field.canvas_small_images), field.canvas_small_images)
+    for i in range(0, len(field.canvas_small_images)):
+        print(field.small_field_canvas.coords(field.canvas_small_images[i]))
+    print("Lewy przycisk myszy zostal nacisniety!")
+    node = Node()
+    print(node.state.coord, node.state.direction, node.action, node.parent)
+    node.state.coord = field.small_field_canvas.coords(field.canvas_small_images[5])
+    node.state.direction = "N"
+    node.action = "l"
+    node.parent = 1
+    print(node.state.coord, node.state.direction, node.parent, node.action)
+    print("Pozycje myszy: {} {}".format(event.x, event.y))
 
 
 def PutMines(mines_array):
@@ -246,12 +286,17 @@ def main():
     player.arrow_west_image = images[3]
 
     # Filling window with images
-    Fill()
+    Fill(True)
     # Drawing arrow (player)
-    Arrow(player.direction)
+    image = player.arrow_east_image
+    player.image_canvas_id = field.small_field_canvas.create_image(player.current_x, player.current_y, anchor=NW,
+                                                                   image=image)
+    # Arrow(player.direction)
+    # Rectangle(True, "None")
     # Rectangle()
     # Binding keyboard press to function
     field.win.bind("<Key>", Action)
+    field.small_field_canvas.bind("<Button-1>", MouseClickEvent)
     # Starting mainloop for window
     field.win.mainloop()
 

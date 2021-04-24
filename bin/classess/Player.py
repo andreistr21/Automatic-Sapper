@@ -22,28 +22,17 @@ class Player(object):
         self.arrow_south_image = None
         self.arrow_west_image = None
         self.arrow_east_image = None
+        self.image_canvas_id = None
 
     def MovingRight(self):
         if self.current_x + self.step < FRAME_WIDTH:
             self.current_x += self.step
             self.current_array_x += 1
-        # # Changes the line down
-        # elif self.current_y + self.step < FRAME_HEIGHT:
-        #     self.current_x = self.x_start
-        #     self.current_array_x = 0
-        #     self.current_array_y += 1
-        #     self.current_y += self.step
 
     def MovingLeft(self):
         if self.current_x - self.step >= self.x_start:
             self.current_x -= self.step
             self.current_array_x -= 1
-        # # Changes the line up
-        # elif self.current_y - self.step >= self.y_start:
-        #     self.current_x = FRAME_WIDTH - self.step
-        #     self.current_array_x = 9
-        #     self.current_array_y -= 1
-        #     self.current_y -= self.step
 
     def MovingUp(self):
         if self.current_y - self.step >= self.y_start:

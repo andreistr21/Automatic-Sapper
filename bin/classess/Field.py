@@ -27,6 +27,10 @@ class Field(object):
         self.small_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
         self.large_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
 
+        # Modified by Artem to search in the status area
+        self.canvas_small_images = []
+        self.rectangle = 0
+
         self.main_frame = Frame(master, width=FRAME_WIDTH, height=FRAME_HEIGHT, bd=0)
         self.main_frame.pack(anchor=NW)
         self.small_field_canvas = Canvas(self.main_frame, width=FRAME_WIDTH, height=FRAME_HEIGHT, highlightthickness=0,
@@ -39,7 +43,6 @@ class Field(object):
 
     # Clear Canvases
     def Moving(self):
-        self.small_field_canvas.delete('all')
         self.large_image_canvas.delete('all')
 
     def PuttingSmallImages(self):
@@ -55,7 +58,9 @@ class Field(object):
                 small_image_name = self.small_image_array[column][row]
 
                 self.small_field_canvas.image = small_image_name
-                self.small_field_canvas.create_image(x, y, anchor=NW, image=small_image_name)
+                self.canvas_small_images.append(
+                    self.small_field_canvas.create_image(x, y, anchor=NW, image=small_image_name))
+                # self.small_field_canvas.create_image(x, y, anchor=NW, image=small_image_name)
 
                 x += self.image_size + self.x_start
                 row += 1
