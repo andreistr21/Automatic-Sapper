@@ -20,6 +20,8 @@ AMOUNT_OF_MINES = 10
 # Creating objects
 player = Player()
 field = Field()
+fringe = []
+explored = []
 
 
 def Arrow(direction):
@@ -161,36 +163,55 @@ def Action(event):
 
 # Modified by Artem to search in the status area
 def MouseClickEvent(event):
-    print(len(field.canvas_small_images), field.canvas_small_images)
+    global fringe
+    #print(len(field.canvas_small_images), field.canvas_small_images)
     for i in range(0, len(field.canvas_small_images)):
         print(field.small_field_canvas.coords(field.canvas_small_images[i]))
-    print("Lewy przycisk myszy zostal nacisniety!")
-    node = nd.Node()
-    print(node.state.coord, node.state.direction, node.action, node.parent)
-    node.state = nd.State()
-    node.state.coord = field.small_field_canvas.coords(player.image_canvas_id)
-    node.state.direction = "east"
+    #print("Lewy przycisk myszy zostal nacisniety!")
+    #node = nd.Node()
+    #print(node.state.coord, node.state.direction, node.action, node.parent)
+    #node.state = nd.State()
+    #node.state.coord = field.small_field_canvas.coords(player.image_canvas_id)
+    #node.state.direction = "east"
     #node.state.coord = field.small_field_canvas.coords(field.canvas_small_images[5])
 
     start_position = field.small_field_canvas.coords(player.image_canvas_id)
-    end_position = []
+    end_state_coord = []
     print("Pierwsza pozycja: {} {}".format(start_position[0], start_position[1]))
 
 
     #print(node.state.coord, node.state.direction, node.parent, node.action)
-    print("Pozycje myszy: {} {}".format(event.x, event.y))
+    #print("Pozycje myszy: {} {}".format(event.x, event.y))
 
     for i in range(0, len(field.canvas_small_images)):
         img_coords = field.small_field_canvas.coords(field.canvas_small_images[i])
         if (img_coords[0] <= event.x and event.x <= img_coords[0] + IMAGE_SIZE) and (img_coords[1] <= event.y and event.y <= img_coords[1] + IMAGE_SIZE):
-            end_position = img_coords
-    if len(end_position) == 2:
-        print("Koncowa pozycja: {} {}".format(end_position[0], end_position[1]))
+            end_state_coord = img_coords
+    if len(end_state_coord) == 2:
+        print("Koncowa pozycja: {} {}".format(end_state_coord[0], end_state_coord[1]))
+
+    node = nd.Node()
+    if len(fringe) == 0:
+        node.state.coord = field.small_field_canvas.coords(player.image_canvas_id)
+        node.state.direction = "east"
+        print("Pierwszy state - OK")
+    else:
+        node = fringe[len(fringe) - 1]
+        print("Pozostale states - OK")
+        
+    fringe.clear()
+    print("\nLIST IS EMPTY: {}\n".format(fringe))
+    explored.clear()
+    print("Czyszczenie list - OK")
 
     # Successor - only east
-    list_node_state = nd.successor(node.state)
-    for i in range(0, len(list_node_state)):
-        print('Node{} = State: {} {}, Parent: {} {}, Action: {}'.format(i + 1, list_node_state[i].state.coord, list_node_state[i].state.direction, list_node_state[i].parent.coord, list_node_state[i].parent.direction, list_node_state[i].action))
+    fringe = nd.graphsearch(fringe, explored, node.state, end_state_coord)
+    print("Fringe - OK")
+    #print(fringe)
+
+    print("{}".format(fringe))
+    for i in range(0, len(fringe)):
+        print('Node{} = State: {} {}, Parent: {} {}, Action: {}'.format(i + 1, fringe[i].state.coord, fringe[i].state.direction, fringe[i].parent.coord, fringe[i].parent.direction, fringe[i].action))
 
 
 def PutMines(mines_array):
