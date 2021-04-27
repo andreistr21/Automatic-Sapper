@@ -180,16 +180,34 @@ def MouseClickEvent(event):
 
     node = nd.Node()
     if len(fringe) == 0:
-        node.state.coord = field.small_field_canvas.coords(player.image_canvas_id)
+        node.state.coord = start_position
         node.state.direction = "east"
     else:
-        node = fringe[len(fringe) - 1]
+        # ZLE - NAPRAWIC
+        states = []
+        for k in range(0, len(fringe)):
+            new_state = fringe[k].state.coord
+            states.append(new_state)
+        index = states.index(start_position)
+        start_node = fringe[index]
+
+        node.state.coord = start_node.state.coord
+        node.state.direction = start_node.state.direction
         
     fringe.clear()
     explored.clear()
 
     fringe = nd.graphsearch(fringe, explored, node.state, end_state_coord)
 
+    states = []
+    for k in range(0, len(fringe)):
+        new_state = [fringe[k].state.coord, fringe[k].state.direction]
+        states.append(new_state)
+    for i in range(0, len(states)):
+        if states[i] in states[i + 1:]:
+            print("\nDooble element: {}\n".format(states[i]))
+
+    print("\nLista fringe nie zawiera powtorzen!\n")
     for i in range(0, len(fringe)):
         print('Node{} = State: {} {}, Parent: {} {}, Action: {}'.format(i + 1, fringe[i].state.coord, fringe[i].state.direction, fringe[i].parent.coord, fringe[i].parent.direction, fringe[i].action))
 
