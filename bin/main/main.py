@@ -20,8 +20,10 @@ AMOUNT_OF_MINES = 10
 # Creating objects
 player = Player()
 field = Field()
+
 fringe = []
 explored = []
+action_list = []
 
 
 def Arrow(direction):
@@ -162,28 +164,41 @@ def Action(event):
 
 
 # Modified by Artem to search in the status area
+def create_action_list(states, index):
+    global fringe
+    global action_list
+
+    if index == 0:
+        action_list.reverse()
+        return True
+    action_list.append(fringe[index].action)
+    state_parent = [fringe[index].parent.coord, fringe[index].parent.direction]
+    create_action_list(states, states.index(state_parent))
+
+
 def MouseClickEvent(event):
     global fringe
-    for i in range(0, len(field.canvas_small_images)):
-        print(field.small_field_canvas.coords(field.canvas_small_images[i]))
+    global explored
+    global action_list
 
     start_position = field.small_field_canvas.coords(player.image_canvas_id)
-    end_state_coord = []
+    end_position = []
+
     print("Pierwsza pozycja: {} {}".format(start_position[0], start_position[1]))
 
     for i in range(0, len(field.canvas_small_images)):
         img_coords = field.small_field_canvas.coords(field.canvas_small_images[i])
         if (img_coords[0] <= event.x and event.x <= img_coords[0] + IMAGE_SIZE) and (img_coords[1] <= event.y and event.y <= img_coords[1] + IMAGE_SIZE):
-            end_state_coord = img_coords
-    if len(end_state_coord) == 2:
-        print("Koncowa pozycja: {} {}".format(end_state_coord[0], end_state_coord[1]))
+            end_position = img_coords
+
+    if len(end_position) == 2:
+        print("Koncowa pozycja: {} {}".format(end_position[0], end_position[1]))
 
     node = nd.Node()
     if len(fringe) == 0:
         node.state.coord = start_position
         node.state.direction = "east"
     else:
-        # ZLE - NAPRAWIC
         states = []
         for k in range(0, len(fringe)):
             new_state = fringe[k].state.coord
@@ -196,20 +211,25 @@ def MouseClickEvent(event):
         
     fringe.clear()
     explored.clear()
+    action_list.clear()
 
-    fringe = nd.graphsearch(fringe, explored, node.state, end_state_coord)
+    fringe = nd.graph_search(fringe, explored, node.state, end_position)
 
     states = []
-    for k in range(0, len(fringe)):
-        new_state = [fringe[k].state.coord, fringe[k].state.direction]
-        states.append(new_state)
-    for i in range(0, len(states)):
-        if states[i] in states[i + 1:]:
-            print("\nDooble element: {}\n".format(states[i]))
-
-    print("\nLista fringe nie zawiera powtorzen!\n")
     for i in range(0, len(fringe)):
-        print('Node{} = State: {} {}, Parent: {} {}, Action: {}'.format(i + 1, fringe[i].state.coord, fringe[i].state.direction, fringe[i].parent.coord, fringe[i].parent.direction, fringe[i].action))
+        new_state = [fringe[i].state.coord, fringe[i].state.direction]
+        states.append(new_state)
+        if end_position[0] == fringe[i].state.coord[0] and end_position[1] == fringe[i].state.coord[1]:
+            fringe = fringe[:i + 1]
+            break
+
+    create_action_list(states, -1)
+
+    # for i in range(0, len(fringe)):
+    #     print('Node{} = State: {} {}, Parent: {} {}, Action: {}'.format(i + 1, fringe[i].state.coord, fringe[i].state.direction, fringe[i].parent.coord, fringe[i].parent.direction, fringe[i].action))
+
+    print(action_list)
+
 
 
 def PutMines(mines_array):

@@ -1,3 +1,6 @@
+from bin.Classess.Player import FRAME_WIDTH, FRAME_HEIGHT
+
+
 class Node:
     def __init__(self):
         self.state = State()
@@ -29,7 +32,7 @@ def successor(state):
         node_state_right.state.direction = "south"
         node_state_right.action = "Right"
 
-        if state.coord[0] + 53 < 533:
+        if state.coord[0] + 53 < FRAME_WIDTH:
             node_state_forward.state = State()
             node_state_forward.state.coord = [state.coord[0] + 53, state.coord[1]]
             node_state_forward.state.direction = state.direction
@@ -83,7 +86,7 @@ def successor(state):
         node_state_right.state.direction = "west"
         node_state_right.action = "Right"
 
-        if state.coord[1] + 53 < 533:
+        if state.coord[1] + 53 < FRAME_HEIGHT:
             node_state_forward.state = State()
             node_state_forward.state.coord = [state.coord[0], state.coord[1] + 53]
             node_state_forward.state.direction = state.direction
@@ -95,25 +98,23 @@ def successor(state):
         return [node_state_left, node_state_right]
 
 
-def graphsearch(fringe, explored, start_state, end_state_coord):
+def graph_search(fringe, explored, start_state, end_state_coord):
 
     node = Node()
     node.state = start_state
     node.parent = node.state
-    #node.action = "Right"
     fringe.append(node)
-    iter = 0
+    iterator = 0
 
-    bool = True
-    while bool:
+    end_loop = True
+    while end_loop:
         if len(fringe) == 0:
-            bool = False
+            end_loop = False
             #return False
 
-        elem = fringe[iter]
+        elem = fringe[iterator]
 
         if elem.state.coord == end_state_coord:
-            bool = False
             return fringe
 
         explored.append(elem)
@@ -126,14 +127,6 @@ def graphsearch(fringe, explored, start_state, end_state_coord):
                     if another_states[i].state.direction == fringe[j].state.direction:
                         break
                     else:
-                        # states = []
-                        # for k in range(0, len(fringe)):
-                        #     new_state = fringe[k].state
-                        #     states.append(new_state)
-                        # now_state = another_states[i].state
-                        # if now_state in states:
-                        #     break
-
                         states = []
                         for k in range(0, len(fringe)):
                             new_state = [fringe[k].state.coord, fringe[k].state.direction]
@@ -142,13 +135,6 @@ def graphsearch(fringe, explored, start_state, end_state_coord):
                         if now_state in states:
                             break
 
-                        # bool_break = False
-                        # for k in range(0, n):
-                        #     if another_states[i].state.coord[0] == fringe[k].state.coord[0] and another_states[i].state.coord[1] == fringe[k].state.coord[1]:
-                        #         if another_states[i].state.direction == fringe[k].state.direction:
-                        #             bool_break = True
-                        # if bool_break:
-                        #     break
                         another_states[i].parent = elem.state
                         fringe.append(another_states[i])
                 else:
@@ -157,11 +143,11 @@ def graphsearch(fringe, explored, start_state, end_state_coord):
                         new_state = [fringe[k].state.coord, fringe[k].state.direction]
                         states.append(new_state)
                     now_state = [another_states[i].state.coord, another_states[i].state.direction]
+
                     if now_state in states:
                         break
-                    # if another_states[i] in fringe:
-                    #     break
+
                     if another_states[i].state.direction == fringe[j].state.direction:
                         another_states[i].parent = elem.state
                         fringe.append(another_states[i])
-        iter += 1
+        iterator += 1
