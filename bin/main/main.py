@@ -1,5 +1,6 @@
 import os
 import random
+import time
 from tkinter import *
 
 from bin.Classess.Field import Field
@@ -16,6 +17,8 @@ FRAME_HEIGHT = 533
 IMAGE_SIZE = 50
 
 AMOUNT_OF_MINES = 10
+
+DELAY_TIME = 0.5
 
 # Creating objects
 player = Player()
@@ -60,7 +63,7 @@ def DrawingLargeImage():
     field.PuttingLargeImage(large_img_name)
 
 
-def Next_direction(side):
+def NextDirection(action):
     # Define next direction
     current_direction = player.direction
     t = -1
@@ -70,9 +73,9 @@ def Next_direction(side):
             break
 
     # Write next direction to Player
-    if side == "Right":
+    if action == "Right":
         player.direction = player.directions[(t + 1) % 4]
-    elif side == "Left":
+    elif action == "Left":
         player.direction = player.directions[(t - 1) % 4]
 
     return player.direction
@@ -89,31 +92,26 @@ def MovingForward():
         field.small_field_canvas.move(player.image_canvas_id, 0, player.step)
 
 
-def Moving(event):
+def Moving(action):
     # Moving
-    if event.keysym == "Right":
+    if action == "Right":
         # player.MovingRight()
         field.Moving()
         Fill(False)
-        next_direction = Next_direction(event.keysym)
+        next_direction = NextDirection(action)
         Arrow(next_direction)
-    elif event.keysym == "Left":
+    elif action == "Left":
         # player.MovingLeft()
         field.Moving()
         Fill(False)
-        next_direction = Next_direction(event.keysym)
+        next_direction = NextDirection(action)
         Arrow(next_direction)
-    elif event.keysym == "Up":
+    elif action == "Up":
         player.Moving()
         field.Moving()
         Fill(False)
         MovingForward()
         Arrow(player.direction)
-    # elif event.keysym == "space":
-    #     player.MovingDown()
-    #     field.Moving()
-    #     Fill()
-    #     Arrow(player.arrow_south_image)
 
 
 def ImagesInArray(directory, array):
@@ -153,11 +151,11 @@ def CellDesignation(array, color):
             break
 
 
-def Action(event):
-    if event.keysym in ["Right", "Left", "Up", "space"]:
-        Moving(event)
-    elif event.keysym in ["1", "2"]:
-        if event.keysym == "1":
+def Action(action):
+    if action in ["Right", "Left", "Up", "space"]:
+        Moving(action)
+    elif action in ["1", "2"]:
+        if action == "1":
             CellDesignation(field.state_of_cell_array, "red")
         else:
             CellDesignation(field.state_of_cell_array, "green")
@@ -184,15 +182,15 @@ def MouseClickEvent(event):
     start_position = field.small_field_canvas.coords(player.image_canvas_id)
     end_position = []
 
-    print("Pierwsza pozycja: {} {}".format(start_position[0], start_position[1]))
+    # print("Pierwsza pozycja: {} {}".format(start_position[0], start_position[1]))
 
     for i in range(0, len(field.canvas_small_images)):
         img_coords = field.small_field_canvas.coords(field.canvas_small_images[i])
         if (img_coords[0] <= event.x and event.x <= img_coords[0] + IMAGE_SIZE) and (img_coords[1] <= event.y and event.y <= img_coords[1] + IMAGE_SIZE):
             end_position = img_coords
 
-    if len(end_position) == 2:
-        print("Koncowa pozycja: {} {}".format(end_position[0], end_position[1]))
+    # if len(end_position) == 2:
+    #     print("Koncowa pozycja: {} {}".format(end_position[0], end_position[1]))
 
     node = nd.Node()
     if len(fringe) == 0:
@@ -230,6 +228,8 @@ def MouseClickEvent(event):
 
     print(action_list)
 
+    # Start moving
+    AutoMove()
 
 
 def PutMines(mines_array):
@@ -293,6 +293,16 @@ def MinesInArrays(mines_array, directory, imgs_array):
             imgs_array[mines_array[i].array_x][mines_array[i].array_y] = temp_array[i]
 
 
+def AutoMove():
+    for action in action_list:
+        # Program wait for better illustration
+        time.sleep(DELAY_TIME)
+        # Move once
+        Action(action)
+        # Update main window
+        field.win.update()
+
+
 def main():
     # Creating the main window of an application
     win_size = f'{WINDOW_X}x{WINDOW_Y}'
@@ -336,7 +346,7 @@ def main():
     # Rectangle(True, "None")
     # Rectangle()
     # Binding keyboard press to function
-    field.win.bind("<Key>", Action)
+    # field.win.bind("<Key>", Action)
     field.small_field_canvas.bind("<Button-1>", MouseClickEvent)
     # Starting mainloop for window
     field.win.mainloop()
