@@ -184,7 +184,6 @@ def MouseClickEvent(event):
     end_position = []
 
     # print("Pierwsza pozycja: {} {}".format(start_position[0], start_position[1]))
-    print(field.canvas_small_images)
 
     for i in range(0, len(field.canvas_small_images)):
         img_coords = field.small_field_canvas.coords(field.canvas_small_images[i])
@@ -307,8 +306,8 @@ def AutoMove():
 
 # Draws rectangles that indicate type of cells
 def DrawRectangle():
-    x = player.x_start
-    y = player.y_start
+    x = 4
+    y = 4
 
     color = None
 
@@ -323,10 +322,10 @@ def DrawRectangle():
         elif field.cell_expense[i] == 40:
             color = "green4"
         if color != "None":
-            field.small_field_canvas.create_rectangle(x, y, x + IMAGE_SIZE, y + IMAGE_SIZE, width=3, outline=color)
+            field.small_field_canvas.create_rectangle(x, y, x + IMAGE_SIZE + 2, y + IMAGE_SIZE + 2, width=2, outline=color)
         x += player.step
         if i > 0 and i % 10 == 0:
-            x = player.x_start
+            x = 4
             y += player.step
 
 

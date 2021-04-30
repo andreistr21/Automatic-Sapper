@@ -17,13 +17,13 @@ step = IMAGE_SIZE + 3
 class Field(object):
     def __init__(self):
         self.win = Tk()
-        self.width = 533
-        self.height = 533
+        self.width = 550
+        self.height = 550
         self.image_size = 50
         self.rows = 10
         self.columns = 10
-        self.x_start = 3
-        self.y_start = 3
+        self.x_start = 5
+        self.y_start = 5
         self.state_of_cell_array = [[0 for i in range(3)] for j in range(200)]
         self.field_state_array = [[False for i in range(self.rows)] for j in range(self.columns)]
         self.small_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]

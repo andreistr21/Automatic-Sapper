@@ -11,8 +11,8 @@ from resources.Globals import *
 
 class Player(object):
     def __init__(self):
-        self.x_start = 3
-        self.y_start = 3
+        self.x_start = 5
+        self.y_start = 5
         self.current_x = self.x_start
         self.current_y = self.y_start
         self.step = IMAGE_SIZE + self.x_start

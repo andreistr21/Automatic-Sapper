@@ -32,9 +32,9 @@ def successor(state):
         node_state_right.state.direction = "south"
         node_state_right.action = "Right"
 
-        if state.coord[0] + 53 < FRAME_WIDTH:
+        if state.coord[0] + STEP < FRAME_WIDTH:
             node_state_forward.state = State()
-            node_state_forward.state.coord = [state.coord[0] + 53, state.coord[1]]
+            node_state_forward.state.coord = [state.coord[0] + STEP, state.coord[1]]
             node_state_forward.state.direction = state.direction
             node_state_forward.action = "Up"
 
@@ -50,9 +50,9 @@ def successor(state):
         node_state_right.state.direction = "north"
         node_state_right.action = "Right"
 
-        if state.coord[0] > 3:
+        if state.coord[0] > x_start:
             node_state_forward.state = State()
-            node_state_forward.state.coord = [state.coord[0] - 53, state.coord[1]]
+            node_state_forward.state.coord = [state.coord[0] - STEP, state.coord[1]]
             node_state_forward.state.direction = state.direction
             node_state_forward.action = "Up"
 
@@ -68,9 +68,9 @@ def successor(state):
         node_state_right.state.direction = "east"
         node_state_right.action = "Right"
 
-        if state.coord[1] > 3:
+        if state.coord[1] > x_start:
             node_state_forward.state = State()
-            node_state_forward.state.coord = [state.coord[0], state.coord[1] - 53]
+            node_state_forward.state.coord = [state.coord[0], state.coord[1] - STEP]
             node_state_forward.state.direction = state.direction
             node_state_forward.action = "Up"
 
@@ -86,9 +86,9 @@ def successor(state):
         node_state_right.state.direction = "west"
         node_state_right.action = "Right"
 
-        if state.coord[1] + 53 < FRAME_HEIGHT:
+        if state.coord[1] + STEP < FRAME_HEIGHT:
             node_state_forward.state = State()
-            node_state_forward.state.coord = [state.coord[0], state.coord[1] + 53]
+            node_state_forward.state.coord = [state.coord[0], state.coord[1] + STEP]
             node_state_forward.state.direction = state.direction
             node_state_forward.action = "Up"
 
