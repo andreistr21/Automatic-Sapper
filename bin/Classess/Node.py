@@ -1,4 +1,4 @@
-from bin.Classess.Player import FRAME_WIDTH, FRAME_HEIGHT
+from resources.Globals import *
 
 
 class Node:

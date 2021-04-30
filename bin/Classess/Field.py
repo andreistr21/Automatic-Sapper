@@ -1,13 +1,15 @@
 from doctest import master
 from tkinter import *
 
-WINDOW_X = 533 + 1200
-WINDOW_Y = 950
-FRAME_WIDTH = 533
-FRAME_HEIGHT = 533
+# WINDOW_X = 533 + 1200
+# WINDOW_Y = 950
+# FRAME_WIDTH = 533
+# FRAME_HEIGHT = 533
+#
+# # Size of small image
+# IMAGE_SIZE = 50
 
-# Size of small image
-IMAGE_SIZE = 50
+from resources.Globals import *
 
 step = IMAGE_SIZE + 3
 
@@ -26,6 +28,7 @@ class Field(object):
         self.field_state_array = [[False for i in range(self.rows)] for j in range(self.columns)]
         self.small_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
         self.large_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
+        self.cell_expense = [0 for i in range(self.rows * self.columns)]
 
         # Modified by Artem to search in the status area
         self.canvas_small_images = []
@@ -34,7 +37,7 @@ class Field(object):
         self.main_frame = Frame(master, width=FRAME_WIDTH, height=FRAME_HEIGHT, bd=0)
         self.main_frame.pack(anchor=NW)
         self.small_field_canvas = Canvas(self.main_frame, width=FRAME_WIDTH, height=FRAME_HEIGHT, highlightthickness=0,
-                                         bg='light gray')
+                                         bg='black')
 
         self.small_field_canvas.pack()
         self.large_image_canvas = Canvas(self.win, width=WINDOW_X - 533 - 20, height=900, highlightthickness=0,

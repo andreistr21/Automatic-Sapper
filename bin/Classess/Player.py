@@ -1,10 +1,12 @@
-WINDOW_X = 533 + 1200
-WINDOW_Y = 950
-FRAME_WIDTH = 533
-FRAME_HEIGHT = 533
+# WINDOW_X = 533 + 1200
+# WINDOW_Y = 950
+# FRAME_WIDTH = 533
+# FRAME_HEIGHT = 533
+#
+# # Size of small image
+# IMAGE_SIZE = 50
 
-# Size of small image
-IMAGE_SIZE = 50
+from resources.Globals import *
 
 
 class Player(object):

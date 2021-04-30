@@ -7,18 +7,19 @@ from bin.Classess.Field import Field
 from bin.Classess.Mine import Mine
 from bin.Classess.Player import Player
 import bin.Classess.Node as nd
+from resources.Globals import *
 
-WINDOW_X = 533 + 1200
-WINDOW_Y = 950
-FRAME_WIDTH = 533
-FRAME_HEIGHT = 533
-
-# Size of small image
-IMAGE_SIZE = 50
-
-AMOUNT_OF_MINES = 10
-
-DELAY_TIME = 0.5
+# WINDOW_X = 533 + 1200
+# WINDOW_Y = 950
+# FRAME_WIDTH = 533
+# FRAME_HEIGHT = 533
+#
+# # Size of small image
+# IMAGE_SIZE = 50
+#
+# AMOUNT_OF_MINES = 10
+#
+# DELAY_TIME = 0.5
 
 # Creating objects
 player = Player()
@@ -183,6 +184,7 @@ def MouseClickEvent(event):
     end_position = []
 
     # print("Pierwsza pozycja: {} {}".format(start_position[0], start_position[1]))
+    print(field.canvas_small_images)
 
     for i in range(0, len(field.canvas_small_images)):
         img_coords = field.small_field_canvas.coords(field.canvas_small_images[i])
@@ -303,6 +305,50 @@ def AutoMove():
         field.win.update()
 
 
+# Draws rectangles that indicate type of cells
+def DrawRectangle():
+    x = player.x_start
+    y = player.y_start
+
+    color = None
+
+    # Chose color for rectangle
+    for i in range(len(field.cell_expense)):
+        if field.cell_expense[i] == 10:
+            color = "None"
+        elif field.cell_expense[i] == 20:
+            color = "yellow"
+        elif field.cell_expense[i] == 30:
+            color = "dodger blue"
+        elif field.cell_expense[i] == 40:
+            color = "green4"
+        if color != "None":
+            field.small_field_canvas.create_rectangle(x, y, x + IMAGE_SIZE, y + IMAGE_SIZE, width=3, outline=color)
+        x += player.step
+        if i > 0 and i % 10 == 0:
+            x = player.x_start
+            y += player.step
+
+
+def AddCostCellsToArray(amount, cost):
+    counter = 0
+    while counter < amount:
+        r = random.randint(0, 99)
+        if field.cell_expense[r] == 0:
+            field.cell_expense[r] = cost
+            counter += 1
+
+
+def CostingOfCells():
+    AddCostCellsToArray(amount_of_sand_cells, sand_cell_cost)
+    AddCostCellsToArray(amount_of_water_cells, water_cell_cost)
+    AddCostCellsToArray(amount_of_swamp_cells, swamp_cell_cost)
+    AddCostCellsToArray(field.rows * field.columns - (amount_of_sand_cells + amount_of_water_cells + amount_of_swamp_cells), standard_cell_cost)
+
+    # Draw rectangles
+    DrawRectangle()
+
+
 def main():
     # Creating the main window of an application
     win_size = f'{WINDOW_X}x{WINDOW_Y}'
@@ -323,6 +369,8 @@ def main():
     ImagesInArray(small_directory, field.small_image_array)
     large_directory = "../../files/large_images"
     ImagesInArray(large_directory, field.large_image_array)
+
+    CostingOfCells()
 
     # Add arrow image to Player class
     images = []
