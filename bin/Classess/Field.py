@@ -17,8 +17,8 @@ step = IMAGE_SIZE + 3
 class Field(object):
     def __init__(self):
         self.win = Tk()
-        self.width = 550
-        self.height = 550
+        self.width = 555
+        self.height = 555
         self.image_size = 50
         self.rows = 10
         self.columns = 10
