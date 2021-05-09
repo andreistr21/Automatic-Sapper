@@ -28,6 +28,7 @@ field = Field()
 fringe = []
 explored = []
 action_list = []
+images_coord = []
 
 
 def Arrow(direction):
@@ -46,8 +47,15 @@ def Arrow(direction):
 
 # Putting images
 def Fill(bool):
+    global images_coord
     if bool:
         field.PuttingSmallImages()
+
+        for i in range(0, len(field.canvas_small_images)):
+            images_coord.append(field.small_field_canvas.coords(field.canvas_small_images[i]))
+        print("Coords List: ", images_coord)
+
+        nd.init_data(images_coord, field.cell_expense)
 
     # Drawing red/green rectangles
     for el in field.state_of_cell_array:
@@ -171,7 +179,7 @@ def create_action_list(states, index):
         action_list.reverse()
         return True
     action_list.append(fringe[index].action)
-    state_parent = [fringe[index].parent.coord, fringe[index].parent.direction]
+    state_parent = [fringe[index].parent[0], fringe[index].parent[1]]
     create_action_list(states, states.index(state_parent))
 
 
@@ -189,6 +197,7 @@ def MouseClickEvent(event):
         img_coords = field.small_field_canvas.coords(field.canvas_small_images[i])
         if (img_coords[0] <= event.x and event.x <= img_coords[0] + IMAGE_SIZE) and (img_coords[1] <= event.y and event.y <= img_coords[1] + IMAGE_SIZE):
             end_position = img_coords
+            print("Color cost: ", field.cell_expense[i])
 
     # if len(end_position) == 2:
     #     print("Koncowa pozycja: {} {}".format(end_position[0], end_position[1]))
@@ -202,8 +211,7 @@ def MouseClickEvent(event):
         for k in range(0, len(fringe)):
             new_state = fringe[k].state.coord
             states.append(new_state)
-        index = states.index(start_position)
-        start_node = fringe[index]
+        start_node = fringe[-1]
 
         node.state.coord = start_node.state.coord
         node.state.direction = start_node.state.direction
@@ -211,21 +219,28 @@ def MouseClickEvent(event):
     fringe.clear()
     explored.clear()
     action_list.clear()
-
-    fringe = nd.graph_search(fringe, explored, node.state, end_position)
+    fringe = nd.graph_search_A(fringe, explored, node.state, end_position)
+    # fringe = nd.graph_search(fringe, explored, node.state, end_position)
 
     states = []
+    goal_all = []
     for i in range(0, len(fringe)):
         new_state = [fringe[i].state.coord, fringe[i].state.direction]
         states.append(new_state)
         if end_position[0] == fringe[i].state.coord[0] and end_position[1] == fringe[i].state.coord[1]:
-            fringe = fringe[:i + 1]
-            break
+            goal_all.append(fringe[i])
+
+    elem_min = goal_all[0]
+    for i in range(1, len(goal_all)):
+        if elem_min.priority > goal_all[i].priority:
+            elem_min = goal_all[i]
+    index = fringe.index(elem_min)
+    fringe = fringe[:index + 1]
 
     create_action_list(states, -1)
 
     # for i in range(0, len(fringe)):
-    #     print('Node{} = State: {} {}, Parent: {} {}, Action: {}'.format(i + 1, fringe[i].state.coord, fringe[i].state.direction, fringe[i].parent.coord, fringe[i].parent.direction, fringe[i].action))
+    #     print('Node{} = State: {} {}, Parent: {} {} {}, Action: {}'.format(i + 1, fringe[i].state.coord, fringe[i].state.direction, fringe[i].parent[0], fringe[i].parent[1], fringe[i].parent[2], fringe[i].action))
 
     print(action_list)
 
@@ -310,23 +325,24 @@ def DrawRectangle():
     y = 4
 
     color = None
-
     # Chose color for rectangle
     for i in range(len(field.cell_expense)):
         if field.cell_expense[i] == 10:
             color = "None"
         elif field.cell_expense[i] == 20:
             color = "yellow"
-        elif field.cell_expense[i] == 30:
-            color = "dodger blue"
         elif field.cell_expense[i] == 40:
+            color = "dodger blue"
+        elif field.cell_expense[i] == 80:
             color = "green4"
         if color != "None":
             field.small_field_canvas.create_rectangle(x, y, x + IMAGE_SIZE + 2, y + IMAGE_SIZE + 2, width=2, outline=color)
         x += player.step
-        if i > 0 and i % 10 == 0:
+        if x + IMAGE_SIZE + 2 > field.width:
             x = 4
             y += player.step
+
+
 
 
 def AddCostCellsToArray(amount, cost):

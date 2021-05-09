@@ -19,12 +19,10 @@ amount_of_sand_cells = 10
 sand_cell_cost = 20
 
 amount_of_water_cells = 10
-water_cell_cost = 30
+water_cell_cost = 40
 
 amount_of_swamp_cells = 10
-swamp_cell_cost = 40
-
-
+swamp_cell_cost = 80
 
 x_start = 5
 y_start = 5
