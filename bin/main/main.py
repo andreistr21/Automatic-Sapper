@@ -5,8 +5,10 @@ from tkinter import *
 
 from bin.Classess.Field import Field
 from bin.Classess.Mine import Mine
+from bin.Classess.Travel import Travel
 from bin.Classess.Player import Player
 import bin.Classess.Node as nd
+import bin.Classess.Travel as tr
 from resources.Globals import *
 
 # WINDOW_X = 533 + 1200
@@ -24,6 +26,7 @@ from resources.Globals import *
 # Creating objects
 player = Player()
 field = Field()
+travel = Travel()
 
 fringe = []
 explored = []
@@ -51,9 +54,21 @@ def Fill(bool):
     if bool:
         field.PuttingSmallImages()
 
+        travel.points_coord.append(field.small_field_canvas.coords(field.canvas_small_images[0]))
+        travel.points_coord.extend(field.mines_coord)
+        print(travel.points_coord)
+
+        for i in range(0, len(travel.points_coord)):
+            travel.points_map[i + 1] = travel.points_coord[i]
+        # print(travel.points_map)
+        # key = list(travel.points_map.keys())
+        # print(key)
+        tr.genetic_algorithm(travel.points_map)
+
+
         for i in range(0, len(field.canvas_small_images)):
             images_coord.append(field.small_field_canvas.coords(field.canvas_small_images[i]))
-        print("Coords List: ", images_coord)
+        # print("Coords List: ", images_coord)
 
         nd.init_data(images_coord, field.cell_expense)
 
@@ -144,11 +159,15 @@ def ImagesInArray(directory, array):
                 if column == 10:
                     column = 0
                     row += 1
+                if row == 10:
+                    break
 
         column += 1
         if column == 10:
             column = 0
             row += 1
+        if row == 10:
+            break
 
 
 def CellDesignation(array, color):
@@ -244,6 +263,8 @@ def MouseClickEvent(event):
 
     print(action_list)
 
+
+
     # Start moving
     AutoMove()
 
@@ -261,15 +282,18 @@ def PutMines(mines_array):
             if mine.array_x == x and mine.array_y == y:
                 is_equal = True
         if not is_equal:
-            mine = Mine(x, y)
-            mines_array.append(mine)
+            if x == 0 and y == 0:
+                continue
+            else:
+                mine = Mine(x, y)
+                mines_array.append(mine)
 
-            field.field_state_array[x][y] = True
+                field.field_state_array[x][y] = True
 
-            counter += 1
+                counter += 1
 
 
-def MinesInArrays(mines_array, directory, imgs_array):
+def MinesInArrays(mines_array, directory, imgs_array, bool_mines_coord):
     counter = 0
 
     temp_array = []
@@ -308,6 +332,29 @@ def MinesInArrays(mines_array, directory, imgs_array):
             # Add images in image array
             imgs_array[mines_array[i].array_x][mines_array[i].array_y] = temp_array[i]
 
+    if bool_mines_coord:
+        for i in range(len(mines_array)):
+            field.mines_coord.append([mines_array[i].array_x, mines_array[i].array_y])
+
+
+def DrawFlag():
+    field.small_field_canvas.create_image(player.current_x, player.current_y, anchor=NW, image=field.flag_img)
+
+
+def IsItMine():
+    visited = 0     # 0 - not mine; 1 - on this mine for the first time; 2 - already been on this mine
+
+    # Checks if the player is on the mine
+    for i in field.mines_coord:
+        if i[0] == player.current_x and i[1] == player.current_y:
+            visited = 1
+            # Checks if the player has already been on this mine
+            for y in field.visited_mines:
+                if y[0] == player.current_x and y[1] == player.current_y:
+                    visited = 2
+        if visited == 1:
+            DrawFlag()
+
 
 def AutoMove():
     for action in action_list:
@@ -315,6 +362,8 @@ def AutoMove():
         time.sleep(DELAY_TIME)
         # Move once
         Action(action)
+        # Check if player on mine and if yes, draw flag
+        IsItMine()
         # Update main window
         field.win.update()
 
@@ -333,7 +382,7 @@ def DrawRectangle():
             color = "yellow"
         elif field.cell_expense[i] == 40:
             color = "dodger blue"
-        elif field.cell_expense[i] == 80:
+        elif field.cell_expense[i] == 5:
             color = "green4"
         if color != "None":
             field.small_field_canvas.create_rectangle(x, y, x + IMAGE_SIZE + 2, y + IMAGE_SIZE + 2, width=2, outline=color)
@@ -364,20 +413,39 @@ def CostingOfCells():
     DrawRectangle()
 
 
+def click_button():
+    btn.destroy()
+    label = Label(field.win, text='Prepod lox\nPrepod lox\nPrepod lox\nPrepod lox\nPrepod lox\nPrepod lox\n', fg='black')
+    label.place(x=50, y=570)
+
+
 def main():
     # Creating the main window of an application
     win_size = f'{WINDOW_X}x{WINDOW_Y}'
     field.win.title("Sapper")
     field.win.configure(bg='gray')
     field.win.geometry(win_size)
+    print(f'Amount of mines: {AMOUNT_OF_MINES}')
+    global btn
+    btn = Button(field.win,
+                 text="Search for mines",  # текст кнопки
+                 background="#555",  # фоновый цвет кнопки
+                 foreground="#ccc",  # цвет текста
+                 padx="20",  # отступ от границ до содержимого по горизонтали
+                 pady="8",  # отступ от границ до содержимого по вертикали
+                 font="16",  # высота шрифта
+                 command=click_button
+                 )
+
+    btn.place(x=50, y=570)
 
     # Create array with mines objects
     mines_array = []
     # Put mines on coordinates
     PutMines(mines_array)
 
-    MinesInArrays(mines_array, "../../files/small_mines_images", field.small_image_array)
-    MinesInArrays(mines_array, "../../files/large_mines_images", field.large_image_array)
+    MinesInArrays(mines_array, "../../files/small_mines_images", field.small_image_array, True)
+    MinesInArrays(mines_array, "../../files/large_mines_images", field.large_image_array, False)
 
     # Filling image arrays
     small_directory = "../../files/small_images"

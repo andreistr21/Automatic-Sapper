@@ -29,10 +29,13 @@ class Field(object):
         self.small_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
         self.large_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
         self.cell_expense = [0 for i in range(self.rows * self.columns)]
+        self.visited_mines = []
 
         # Modified by Artem to search in the status area
         self.canvas_small_images = []
         self.rectangle = 0
+
+        self.mines_coord = []
 
         self.main_frame = Frame(master, width=FRAME_WIDTH, height=FRAME_HEIGHT, bd=0)
         self.main_frame.pack(anchor=NW)
@@ -43,6 +46,8 @@ class Field(object):
         self.large_image_canvas = Canvas(self.win, width=WINDOW_X - 533 - 20, height=900, highlightthickness=0,
                                          bg='gray')
         self.large_image_canvas.place(x=FRAME_WIDTH + 5, y=3)
+
+        self.flag_img = PhotoImage(master=self.small_field_canvas, file="../../files/flag/Flaga.png")
 
     # Clear Canvases
     def Moving(self):
@@ -58,6 +63,7 @@ class Field(object):
         # Putting small images
         for i in range(self.columns):
             for j in range(self.rows):
+
                 small_image_name = self.small_image_array[column][row]
 
                 self.small_field_canvas.image = small_image_name
@@ -65,12 +71,18 @@ class Field(object):
                     self.small_field_canvas.create_image(x, y, anchor=NW, image=small_image_name))
                 # self.small_field_canvas.create_image(x, y, anchor=NW, image=small_image_name)
 
+                for k in range(0, len(self.mines_coord)):
+                    if self.mines_coord[k][0] == i and self.mines_coord[k][1] == j:
+                        new_mine_coord = self.small_field_canvas.coords(self.canvas_small_images[len(self.canvas_small_images) - 1])
+                        self.mines_coord[k] = new_mine_coord
+
                 x += self.image_size + self.x_start
                 row += 1
             y += self.image_size + self.y_start
             x = self.x_start
             column += 1
             row = 0
+        # print(self.mines_coord)
 
     def PuttingLargeImage(self, large_img_name):
         self.large_image_canvas.image = large_img_name
