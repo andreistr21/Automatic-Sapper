@@ -469,7 +469,7 @@ def CostingOfCells():
 
 def click_button():
     btn.destroy()
-    label = Label(field.win, text="Wait... AI conquers the world!", fg='black')
+    label = Label(field.win, text="Wait...\nAI conquers the world...", fg='black', font="20")
     label.place(x=50, y=570)
     field.win.update()
     track = tr.genetic_algorithm(travel.points_map)
