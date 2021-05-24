@@ -9,11 +9,11 @@ WINDOW_Y = 950
 # Size of small image
 IMAGE_SIZE = 50
 
-MIN_AMOUNT_OF_MINES = 0
+MIN_AMOUNT_OF_MINES = 6
 MAX_AMOUNT_OF_MINES = 11
 AMOUNT_OF_MINES = random.randint(MIN_AMOUNT_OF_MINES, MAX_AMOUNT_OF_MINES)
 
-DELAY_TIME = 0.5
+DELAY_TIME = 0.2
 
 STEP = IMAGE_SIZE + 5
 
@@ -26,7 +26,13 @@ amount_of_water_cells = 10
 water_cell_cost = 40
 
 amount_of_swamp_cells = 10
-swamp_cell_cost = 5
+swamp_cell_cost = 80
 
 x_start = 5
 y_start = 5
+
+NUMBER_OF_INDIVIDUALS_FOR_DUEL = 4
+NUMBER_OF_POINTS_PERMUTATION = 10
+PERCENT_OF_MUTATION = 0.01
+PERCENT_OF_OUTGOING_INDIVIDUALS = 0.03
+SLEEP_AFTER_CHECK_MINE = 1

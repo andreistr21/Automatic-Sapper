@@ -56,14 +56,11 @@ def Fill(bool):
 
         travel.points_coord.append(field.small_field_canvas.coords(field.canvas_small_images[0]))
         travel.points_coord.extend(field.mines_coord)
-        print(travel.points_coord)
 
         for i in range(0, len(travel.points_coord)):
             travel.points_map[i + 1] = travel.points_coord[i]
-        # print(travel.points_map)
-        # key = list(travel.points_map.keys())
-        # print(key)
-        tr.genetic_algorithm(travel.points_map)
+
+        print(travel.points_map)
 
 
         for i in range(0, len(field.canvas_small_images)):
@@ -202,71 +199,128 @@ def create_action_list(states, index):
     create_action_list(states, states.index(state_parent))
 
 
-def MouseClickEvent(event):
+def MouseClickEvent(track):
     global fringe
     global explored
     global action_list
 
-    start_position = field.small_field_canvas.coords(player.image_canvas_id)
-    end_position = []
+    print("The best individual is: {} {}".format(track[1], track[0]))
+    for point in range(0, len(track[1]) + 1):
+        start_position = field.small_field_canvas.coords(player.image_canvas_id)
+        if point == len(track[1]):
+            end_position = travel.points_map[1]
+        else:
+            end_position = travel.points_map[track[1][point]]
 
-    # print("Pierwsza pozycja: {} {}".format(start_position[0], start_position[1]))
+        node = nd.Node()
+        if len(fringe) == 0:
+            node.state.coord = start_position
+            node.state.direction = "east"
+        else:
+            states = []
+            for k in range(0, len(fringe)):
+                new_state = fringe[k].state.coord
+                states.append(new_state)
+            start_node = fringe[-1]
 
-    for i in range(0, len(field.canvas_small_images)):
-        img_coords = field.small_field_canvas.coords(field.canvas_small_images[i])
-        if (img_coords[0] <= event.x and event.x <= img_coords[0] + IMAGE_SIZE) and (img_coords[1] <= event.y and event.y <= img_coords[1] + IMAGE_SIZE):
-            end_position = img_coords
-            print("Color cost: ", field.cell_expense[i])
+            node.state.coord = start_node.state.coord
+            node.state.direction = start_node.state.direction
 
-    # if len(end_position) == 2:
-    #     print("Koncowa pozycja: {} {}".format(end_position[0], end_position[1]))
+        fringe.clear()
+        explored.clear()
+        action_list.clear()
+        fringe = nd.graph_search_A(fringe, explored, node.state, end_position)
+        # fringe = nd.graph_search(fringe, explored, node.state, end_position)
 
-    node = nd.Node()
-    if len(fringe) == 0:
-        node.state.coord = start_position
-        node.state.direction = "east"
-    else:
         states = []
-        for k in range(0, len(fringe)):
-            new_state = fringe[k].state.coord
+        goal_all = []
+        for i in range(0, len(fringe)):
+            new_state = [fringe[i].state.coord, fringe[i].state.direction]
             states.append(new_state)
-        start_node = fringe[-1]
+            if end_position[0] == fringe[i].state.coord[0] and end_position[1] == fringe[i].state.coord[1]:
+                goal_all.append(fringe[i])
 
-        node.state.coord = start_node.state.coord
-        node.state.direction = start_node.state.direction
-        
-    fringe.clear()
-    explored.clear()
-    action_list.clear()
-    fringe = nd.graph_search_A(fringe, explored, node.state, end_position)
-    # fringe = nd.graph_search(fringe, explored, node.state, end_position)
+        elem_min = goal_all[0]
+        for i in range(1, len(goal_all)):
+            if elem_min.priority > goal_all[i].priority:
+                elem_min = goal_all[i]
+        index = fringe.index(elem_min)
+        fringe = fringe[:index + 1]
 
-    states = []
-    goal_all = []
-    for i in range(0, len(fringe)):
-        new_state = [fringe[i].state.coord, fringe[i].state.direction]
-        states.append(new_state)
-        if end_position[0] == fringe[i].state.coord[0] and end_position[1] == fringe[i].state.coord[1]:
-            goal_all.append(fringe[i])
+        create_action_list(states, -1)
 
-    elem_min = goal_all[0]
-    for i in range(1, len(goal_all)):
-        if elem_min.priority > goal_all[i].priority:
-            elem_min = goal_all[i]
-    index = fringe.index(elem_min)
-    fringe = fringe[:index + 1]
+        # for i in range(0, len(fringe)):
+        #     print('Node{} = State: {} {}, Parent: {} {} {}, Action: {}'.format(i + 1, fringe[i].state.coord, fringe[i].state.direction, fringe[i].parent[0], fringe[i].parent[1], fringe[i].parent[2], fringe[i].action))
 
-    create_action_list(states, -1)
+        # print(action_list)
 
+        # Start moving
+        AutoMove()
+        DrawFlag()
+
+        time.sleep(SLEEP_AFTER_CHECK_MINE)
+
+
+    # start_position = field.small_field_canvas.coords(player.image_canvas_id)
+    # end_position = []
+    #
+    # # print("Pierwsza pozycja: {} {}".format(start_position[0], start_position[1]))
+    #
+    # for i in range(0, len(field.canvas_small_images)):
+    #     img_coords = field.small_field_canvas.coords(field.canvas_small_images[i])
+    #     if (img_coords[0] <= event.x and event.x <= img_coords[0] + IMAGE_SIZE) and (img_coords[1] <= event.y and event.y <= img_coords[1] + IMAGE_SIZE):
+    #         end_position = img_coords
+    #         print("Color cost: ", field.cell_expense[i])
+    #
+    # # if len(end_position) == 2:
+    # #     print("Koncowa pozycja: {} {}".format(end_position[0], end_position[1]))
+    #
+    # node = nd.Node()
+    # if len(fringe) == 0:
+    #     node.state.coord = start_position
+    #     node.state.direction = "east"
+    # else:
+    #     states = []
+    #     for k in range(0, len(fringe)):
+    #         new_state = fringe[k].state.coord
+    #         states.append(new_state)
+    #     start_node = fringe[-1]
+    #
+    #     node.state.coord = start_node.state.coord
+    #     node.state.direction = start_node.state.direction
+    #
+    # fringe.clear()
+    # explored.clear()
+    # action_list.clear()
+    # fringe = nd.graph_search_A(fringe, explored, node.state, end_position)
+    # # fringe = nd.graph_search(fringe, explored, node.state, end_position)
+    #
+    # states = []
+    # goal_all = []
     # for i in range(0, len(fringe)):
-    #     print('Node{} = State: {} {}, Parent: {} {} {}, Action: {}'.format(i + 1, fringe[i].state.coord, fringe[i].state.direction, fringe[i].parent[0], fringe[i].parent[1], fringe[i].parent[2], fringe[i].action))
-
-    print(action_list)
-
-
-
-    # Start moving
-    AutoMove()
+    #     new_state = [fringe[i].state.coord, fringe[i].state.direction]
+    #     states.append(new_state)
+    #     if end_position[0] == fringe[i].state.coord[0] and end_position[1] == fringe[i].state.coord[1]:
+    #         goal_all.append(fringe[i])
+    #
+    # elem_min = goal_all[0]
+    # for i in range(1, len(goal_all)):
+    #     if elem_min.priority > goal_all[i].priority:
+    #         elem_min = goal_all[i]
+    # index = fringe.index(elem_min)
+    # fringe = fringe[:index + 1]
+    #
+    # create_action_list(states, -1)
+    #
+    # # for i in range(0, len(fringe)):
+    # #     print('Node{} = State: {} {}, Parent: {} {} {}, Action: {}'.format(i + 1, fringe[i].state.coord, fringe[i].state.direction, fringe[i].parent[0], fringe[i].parent[1], fringe[i].parent[2], fringe[i].action))
+    #
+    # print(action_list)
+    #
+    #
+    #
+    # # Start moving
+    # AutoMove()
 
 
 def PutMines(mines_array):
@@ -341,19 +395,19 @@ def DrawFlag():
     field.small_field_canvas.create_image(player.current_x, player.current_y, anchor=NW, image=field.flag_img)
 
 
-def IsItMine():
-    visited = 0     # 0 - not mine; 1 - on this mine for the first time; 2 - already been on this mine
-
-    # Checks if the player is on the mine
-    for i in field.mines_coord:
-        if i[0] == player.current_x and i[1] == player.current_y:
-            visited = 1
-            # Checks if the player has already been on this mine
-            for y in field.visited_mines:
-                if y[0] == player.current_x and y[1] == player.current_y:
-                    visited = 2
-        if visited == 1:
-            DrawFlag()
+# def IsItMine():
+#     visited = 0     # 0 - not mine; 1 - on this mine for the first time; 2 - already been on this mine
+#
+#     # Checks if the player is on the mine
+#     for i in field.mines_coord:
+#         if i[0] == player.current_x and i[1] == player.current_y:
+#             visited = 1
+#             # Checks if the player has already been on this mine
+#             for y in field.visited_mines:
+#                 if y[0] == player.current_x and y[1] == player.current_y:
+#                     visited = 2
+#         if visited == 1:
+#             DrawFlag()
 
 
 def AutoMove():
@@ -363,7 +417,7 @@ def AutoMove():
         # Move once
         Action(action)
         # Check if player on mine and if yes, draw flag
-        IsItMine()
+        # IsItMine()
         # Update main window
         field.win.update()
 
@@ -376,13 +430,13 @@ def DrawRectangle():
     color = None
     # Chose color for rectangle
     for i in range(len(field.cell_expense)):
-        if field.cell_expense[i] == 10:
+        if field.cell_expense[i] == standard_cell_cost:
             color = "None"
-        elif field.cell_expense[i] == 20:
+        elif field.cell_expense[i] == sand_cell_cost:
             color = "yellow"
-        elif field.cell_expense[i] == 40:
+        elif field.cell_expense[i] == water_cell_cost:
             color = "dodger blue"
-        elif field.cell_expense[i] == 5:
+        elif field.cell_expense[i] == swamp_cell_cost:
             color = "green4"
         if color != "None":
             field.small_field_canvas.create_rectangle(x, y, x + IMAGE_SIZE + 2, y + IMAGE_SIZE + 2, width=2, outline=color)
@@ -415,8 +469,15 @@ def CostingOfCells():
 
 def click_button():
     btn.destroy()
-    label = Label(field.win, text='Prepod lox\nPrepod lox\nPrepod lox\nPrepod lox\nPrepod lox\nPrepod lox\n', fg='black')
+    label = Label(field.win, text="Wait... AI conquers the world!", fg='black')
     label.place(x=50, y=570)
+    field.win.update()
+    track = tr.genetic_algorithm(travel.points_map)
+
+    track[1].remove(1)
+    label.config(text=track[1])
+    field.win.update()
+    MouseClickEvent(track)
 
 
 def main():
@@ -433,7 +494,7 @@ def main():
                  foreground="#ccc",  # цвет текста
                  padx="20",  # отступ от границ до содержимого по горизонтали
                  pady="8",  # отступ от границ до содержимого по вертикали
-                 font="16",  # высота шрифта
+                 font="24",  # высота шрифта
                  command=click_button
                  )
 
@@ -478,7 +539,7 @@ def main():
     # Rectangle()
     # Binding keyboard press to function
     # field.win.bind("<Key>", Action)
-    field.small_field_canvas.bind("<Button-1>", MouseClickEvent)
+    # field.small_field_canvas.bind("<Button-1>", MouseClickEvent)
     # Starting mainloop for window
     field.win.mainloop()
 
