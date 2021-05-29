@@ -24,12 +24,16 @@ class Field(object):
         self.columns = 10
         self.x_start = 5
         self.y_start = 5
-        self.state_of_cell_array = [[0 for i in range(3)] for j in range(200)]
+        # For red and green rectangles
+        # self.state_of_cell_array = [[0 for i in range(3)] for j in range(200)]
+        # Is on this position mine (True, False)
         self.field_state_array = [[False for i in range(self.rows)] for j in range(self.columns)]
         self.small_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
         self.large_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
         self.cell_expense = [0 for i in range(self.rows * self.columns)]
-        self.visited_mines = []
+        # Array rows * columns, if on [x][y] mine, object mine will be in the array in this position
+        self.state_of_cell_array = [["None" for _ in range(self.rows)] for __ in range(self.columns)]
+        # self.visited_mines = []
 
         # Modified by Artem to search in the status area
         self.canvas_small_images = []
@@ -47,7 +51,11 @@ class Field(object):
                                          bg='gray')
         self.large_image_canvas.place(x=FRAME_WIDTH + 5, y=3)
 
-        self.flag_img = PhotoImage(master=self.small_field_canvas, file="../../files/flag/Flaga.png")
+        self.flag_img = PhotoImage(master=self.small_field_canvas, file="../../files/flag/FlagRed.png")
+        self.flag_green_img = PhotoImage(master=self.small_field_canvas, file="../../files/flag/FlagGreen.png")
+        self.flag_yellow_img = PhotoImage(master=self.small_field_canvas, file="../../files/flag/FlagYellow.png")
+        self.flag_red_img = PhotoImage(master=self.small_field_canvas, file="../../files/flag/FlagRed.png")
+        self.flag_bleu_img = PhotoImage(master=self.small_field_canvas, file="../../files/flag/FlagBlue.png")
 
     # Clear Canvases
     def Moving(self):
