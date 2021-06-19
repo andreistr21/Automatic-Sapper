@@ -93,6 +93,7 @@ def tournament_selection(population):
 
     return winner_of_duel1, winner_of_duel2
 
+
 def edge_recombination_crossover(parent1, parent2):
     dict_of_neighbors = generate_dict_of_neighbors(parent1, parent2)
 

@@ -70,15 +70,8 @@ def Fill(bool):
 
         for i in range(0, len(field.canvas_small_images)):
             images_coord.append(field.small_field_canvas.coords(field.canvas_small_images[i]))
-        # print("Coords List: ", images_coord)
 
         nd.init_data(images_coord, field.cell_expense)
-
-    # # Drawing red/green rectangles
-    # for el in field.state_of_cell_array:
-    #     if el[0] != 0:
-    #         field.small_field_canvas.create_rectangle(el[0], el[1], el[0] + player.step - 2,
-    #                                                   el[1] + player.step - 2, width=3, outline=el[2])
 
     DrawingLargeImage()
 
@@ -140,21 +133,15 @@ def Moving(action):
         Arrow(player.direction)
 
 
-def ImagesInArray(directory, array):
+def ImagesInArray(images_array, array):
     # Filling array from directory
     row = column = 0
-    for file in os.listdir(directory):
-        image_name = file
-        image_path = f"{directory}/{image_name}"
-        if directory == "../files/large_images":
-            image = PhotoImage(master=field.large_image_canvas, file=image_path)
-        else:
-            image = PhotoImage(master=field.small_field_canvas, file=image_path)
 
+    for el in images_array:
         is_done = False
         while not is_done:
             if array[row][column] == 0:
-                array[row][column] = image
+                array[row][column] = el
                 is_done = True
             else:
                 column += 1
@@ -170,6 +157,36 @@ def ImagesInArray(directory, array):
             row += 1
         if row == 10:
             break
+
+    # # Filling array from directory
+    # row = column = 0
+    # for file in os.listdir(directory):
+    #     image_name = file
+    #     image_path = f"{directory}/{image_name}"
+    #     if directory == "../files/large_images":
+    #         image = PhotoImage(master=field.large_image_canvas, file=image_path)
+    #     else:
+    #         image = PhotoImage(master=field.small_field_canvas, file=image_path)
+    #
+    #     is_done = False
+    #     while not is_done:
+    #         if array[row][column] == 0:
+    #             array[row][column] = image
+    #             is_done = True
+    #         else:
+    #             column += 1
+    #             if column == 10:
+    #                 column = 0
+    #                 row += 1
+    #             if row == 10:
+    #                 break
+    #
+    #     column += 1
+    #     if column == 10:
+    #         column = 0
+    #         row += 1
+    #     if row == 10:
+    #         break
 
 
 def CellDesignation(array, color):
@@ -491,38 +508,83 @@ def click_button():
 
 
 # Check if there mines near and if, mark it
-def CheckForMinesNear(x, y):
+def CheckForMinesAndHousesNear(x, y):
     if x > 0:
         if field.state_of_cell_array[x - 1][y] != "None":
-            # Mark by chain reaction current mine
-            field.state_of_cell_array[x][y].chain_reaction = 1
-            # Mark by chain reaction mine that near
-            field.state_of_cell_array[x - 1][y].chain_reaction = 1
+            if field.state_of_cell_array[x][y] != "House":
+                # Mark by chain reaction current mine
+                field.state_of_cell_array[x][y].chain_reaction = 1
+            if field.state_of_cell_array[x - 1][y] != "House":
+                # Mark by chain reaction mine that near
+                field.state_of_cell_array[x - 1][y].chain_reaction = 1
     if x < 9:
         if field.state_of_cell_array[x + 1][y] != "None":
-            # Mark by chain reaction current mine
-            field.state_of_cell_array[x][y].chain_reaction = 1
-            # Mark by chain reaction mine that near
-            field.state_of_cell_array[x + 1][y].chain_reaction = 1
+            if field.state_of_cell_array[x][y] != "House":
+                # Mark by chain reaction current mine
+                field.state_of_cell_array[x][y].chain_reaction = 1
+            if field.state_of_cell_array[x + 1][y] != "House":
+                # Mark by chain reaction mine that near
+                field.state_of_cell_array[x + 1][y].chain_reaction = 1
     if y > 0:
         if field.state_of_cell_array[x][y - 1] != "None":
-            # Mark by chain reaction current mine
-            field.state_of_cell_array[x][y].chain_reaction = 1
-            # Mark by chain reaction mine that near
-            field.state_of_cell_array[x][y - 1].chain_reaction = 1
+            if field.state_of_cell_array[x][y] != "House":
+                # Mark by chain reaction current mine
+                field.state_of_cell_array[x][y].chain_reaction = 1
+            if field.state_of_cell_array[x][y - 1] != "House":
+                # Mark by chain reaction mine that near
+                field.state_of_cell_array[x][y - 1].chain_reaction = 1
     if y < 9:
         if field.state_of_cell_array[x][y + 1] != "None":
-            # Mark by chain reaction current mine
-            field.state_of_cell_array[x][y].chain_reaction = 1
-            # Mark by chain reaction mine that near
-            field.state_of_cell_array[x][y + 1].chain_reaction = 1
+            if field.state_of_cell_array[x][y] != "House":
+                # Mark by chain reaction current mine
+                field.state_of_cell_array[x][y].chain_reaction = 1
+            if field.state_of_cell_array[x][y + 1] != "House":
+                # Mark by chain reaction mine that near
+                field.state_of_cell_array[x][y + 1].chain_reaction = 1
 
 
 def CheckForChainReaction():
     for x in range(field.columns):
         for y in range(field.rows):
             if field.state_of_cell_array[x][y] != "None":
-                CheckForMinesNear(x, y)
+                CheckForMinesAndHousesNear(x, y)
+
+
+def LoadAndMixImages(directory_small_images, directory_large_images):
+    small_images_array = []
+    large_images_array = []
+
+    for filename in os.listdir(directory_small_images):
+        image_path = f"{directory_small_images}/{filename}"
+        image = PhotoImage(master=field.small_field_canvas, file=image_path)
+
+        small_images_array.append(image)
+
+    for filename in os.listdir(directory_large_images):
+        image_path = f"{directory_large_images}/{filename}"
+        image = PhotoImage(master=field.large_image_canvas, file=image_path)
+
+        large_images_array.append(image)
+
+    zip_array = list(zip(small_images_array, large_images_array))
+
+    random.shuffle(zip_array)
+
+    small_images_array, large_images_array = zip(*zip_array)
+
+    return small_images_array, large_images_array
+
+
+def HousesImagesInArray(images_array, array_for_images):
+    i = 0
+    while i < AMOUNT_OF_HOUSES:
+        x = random.randint(0, 9)
+        y = random.randint(0, 9)
+
+        if array_for_images[x][y] == 0:
+            array_for_images[x][y] = images_array[i]
+            field.state_of_cell_array[x][y] = "House"
+            i += 1
 
 
 def main():
@@ -532,6 +594,7 @@ def main():
     field.win.configure(bg='gray')
     field.win.geometry(win_size)
     print(f'Amount of mines: {AMOUNT_OF_MINES}')
+    print(f'Amount of houses: {AMOUNT_OF_HOUSES}')
 
     global btn
     btn = Button(field.win,
@@ -554,17 +617,24 @@ def main():
     # Put mines on coordinates
     PutMines(mines_array)
 
-    CheckForChainReaction()
-
     # Add images of mines in arrays
     MinesInArrays(mines_array, "../../files/small_mines_images", field.small_image_array, True)
     MinesInArrays(mines_array, "../../files/large_mines_images", field.large_image_array, False)
 
-    # Filling image arrays
+    small_images_of_houses_array, large_images_of_houses_array = LoadAndMixImages("../../files/small_images_houses", "../../files/large_images_houses")
+
+    HousesImagesInArray(small_images_of_houses_array, field.small_image_array)
+    HousesImagesInArray(large_images_of_houses_array, field.large_image_array)
+
+    CheckForChainReaction()
+
     small_directory = "../../files/small_images"
-    ImagesInArray(small_directory, field.small_image_array)
     large_directory = "../../files/large_images"
-    ImagesInArray(large_directory, field.large_image_array)
+    small_images_array, large_images_array = LoadAndMixImages(small_directory, large_directory)
+
+    # Filling image arrays
+    ImagesInArray(small_images_array, field.small_image_array)
+    ImagesInArray(large_images_array, field.large_image_array)
 
     # Add arrow image to Player class
     images = []

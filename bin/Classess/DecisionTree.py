@@ -21,7 +21,7 @@ def Learning():
     y = dataset['decision']
 
     # Split data to training and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
 
     # Training
     classifier = DecisionTreeClassifier()
@@ -29,17 +29,10 @@ def Learning():
 
     # Predictions test
     y_pred = classifier.predict(X_test)
-    # print(y_pred)
-
-    # my_dict = {'known': [1], 'power': [1], 'new': [1], 'location': [0], 'stable': [1], 'chain_reaction': [1]}
-    # s = pd.DataFrame.from_dict(my_dict)
-    # predict = self.classifier.predict(s)
-    #
-    # print(predict)
 
     print()
     print(confusion_matrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
 
+    # Save predictions
     dump(classifier, '../../files/decision tree/classifier.joblib')
-

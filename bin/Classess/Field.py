@@ -77,7 +77,6 @@ class Field(object):
                 self.small_field_canvas.image = small_image_name
                 self.canvas_small_images.append(
                     self.small_field_canvas.create_image(x, y, anchor=NW, image=small_image_name))
-                # self.small_field_canvas.create_image(x, y, anchor=NW, image=small_image_name)
 
                 for k in range(0, len(self.mines_coord)):
                     if self.mines_coord[k][0] == i and self.mines_coord[k][1] == j:
@@ -90,7 +89,6 @@ class Field(object):
             x = self.x_start
             column += 1
             row = 0
-        # print(self.mines_coord)
 
     def PuttingLargeImage(self, large_img_name):
         self.large_image_canvas.image = large_img_name
