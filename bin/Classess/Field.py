@@ -30,6 +30,7 @@ class Field(object):
         self.field_state_array = [[False for i in range(self.rows)] for j in range(self.columns)]
         self.small_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
         self.large_image_array = [[0 for i in range(self.rows)] for j in range(self.columns)]
+        self.large_image_array_filepath = [[0 for _ in range(self.rows)] for __ in range(self.columns)]
         self.cell_expense = [0 for i in range(self.rows * self.columns)]
         # Array rows * columns, if on [x][y] mine, object mine will be in the array in this position
         self.state_of_cell_array = [["None" for _ in range(self.rows)] for __ in range(self.columns)]
