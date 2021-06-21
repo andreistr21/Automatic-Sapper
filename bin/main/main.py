@@ -67,7 +67,10 @@ def Fill(bool):
 
 
 def DrawingLargeImage():
-    large_img_name = field.large_image_array[player.current_array_y][player.current_array_x]  # ToDo change positions?
+    large_img_name = field.large_image_array[player.current_array_x][player.current_array_y]  # ToDo change positions?
+
+    # print(
+    #     f'large image path[{player.current_array_x}][{player.current_array_y}]: {field.large_image_array_filepath[player.current_array_x][player.current_array_y]}')
 
     field.PuttingLargeImage(large_img_name)
 
@@ -208,7 +211,7 @@ def create_action_list(states, index):
 
 def MakeDecision():
     if player.current_array_x != 0 or player.current_array_y != 0:
-        mine = field.state_of_cell_array[player.current_array_y][player.current_array_x]
+        mine = field.state_of_cell_array[player.current_array_x][player.current_array_y]
         # print(field.state_of_cell_array)
         # print(mine)
         attributes_dict = {'known': [mine.known], 'power': [mine.power], 'new': [mine.new], 'location': [mine.location],
@@ -244,22 +247,23 @@ def MarkMine(prediction):
 
 def ChangeChainReactionParameter(prediction, source_x, source_y, x, y):
     if prediction == 0:
-        print(f"x: {source_x}; y: {source_y}")
-        print(f'state of cell: {field.state_of_cell_array[source_x][source_y]}')
-        print(f'img path: {field.large_image_array_filepath}')
+        # print(f"x: {source_x}; y: {source_y}")
+        # print(f'state of cell: {field.state_of_cell_array[source_x][source_y]}')
+        # print(f'img path: {field.large_image_array_filepath}')
         field.state_of_cell_array[source_x][source_y].chain_reaction = 1
         field.state_of_cell_array[x][y] = "House"
 
 
 def CheckIfItIsHouse(x, y):
-    print('Pre prediction')
-    print(f"x: {x}; y: {y}")
-    print(f'image path: {field.large_image_array_filepath[x][y]}')
-    print(field.large_image_array_filepath)
-    print(f'state of cell: {field.state_of_cell_array[x][y]}')
-    print(field.state_of_cell_array)
-
     prediction = NeuralNetwork.Prediction(neural_network, x, y, field)
+
+    house = prediction[0][0]
+    other = prediction[0][1]
+
+    if house > other:
+        prediction = 0
+    else:
+        prediction = 1
 
     print(f'Prediction: {prediction}')
 
@@ -267,19 +271,23 @@ def CheckIfItIsHouse(x, y):
 
 
 def CheckForHouses():
-    if player.current_array_x > 0 and field.state_of_cell_array[player.current_array_x - 1][player.current_array_y] == "None":
+    if player.current_array_x > 0 and field.state_of_cell_array[player.current_array_x - 1][
+        player.current_array_y] == "None":
         prediction = CheckIfItIsHouse(player.current_array_x - 1, player.current_array_y)
         ChangeChainReactionParameter(prediction, player.current_array_x, player.current_array_y,
                                      player.current_array_x - 1, player.current_array_y)
-    if player.current_array_x < 9 and field.state_of_cell_array[player.current_array_x + 1][player.current_array_y] == "None":
+    if player.current_array_x < 9 and field.state_of_cell_array[player.current_array_x + 1][
+        player.current_array_y] == "None":
         prediction = CheckIfItIsHouse(player.current_array_x + 1, player.current_array_y)
         ChangeChainReactionParameter(prediction, player.current_array_x, player.current_array_y,
                                      player.current_array_x + 1, player.current_array_y)
-    if player.current_array_y > 0 and field.state_of_cell_array[player.current_array_x][player.current_array_y - 1] == "None":
+    if player.current_array_y > 0 and field.state_of_cell_array[player.current_array_x][
+        player.current_array_y - 1] == "None":
         prediction = CheckIfItIsHouse(player.current_array_x, player.current_array_y - 1)
         ChangeChainReactionParameter(prediction, player.current_array_x, player.current_array_y,
                                      player.current_array_x, player.current_array_y - 1)
-    if player.current_array_y < 9 and field.state_of_cell_array[player.current_array_x][player.current_array_y + 1] == "None":
+    if player.current_array_y < 9 and field.state_of_cell_array[player.current_array_x][
+        player.current_array_y + 1] == "None":
         prediction = CheckIfItIsHouse(player.current_array_x, player.current_array_y + 1)
         ChangeChainReactionParameter(prediction, player.current_array_x, player.current_array_y,
                                      player.current_array_x, player.current_array_y + 1)
@@ -337,8 +345,11 @@ def MouseClickEvent(track):
         # Start moving
         AutoMove()
 
-        # Check if there are houses nearby
-        CheckForHouses()
+        # Condition, that not allow check if in 0, 0
+        if player.current_array_x > 0 and player.current_y > 0:
+            # Check if there are houses nearby
+            print()
+            CheckForHouses()
 
         # Decision by tree
         prediction = MakeDecision()
@@ -677,6 +688,174 @@ def LoadData(small_directory, large_directory):
     return small_array, large_array, path_array
 
 
+def LoadDataInArrays(small_images_directory, large_images_directory):
+    small_images_of_houses_array = []
+    large_images_of_houses_array = []
+    large_image_array_filepath = []
+
+    is_equal_len = False
+
+    small_images_dir = sorted(os.listdir(small_images_directory))
+    large_images_dir = sorted(os.listdir(large_images_directory))
+    large_image_array_filepath = large_images_dir.copy()
+
+    # print(large_image_array_filepath)
+
+    for i in range(len(large_image_array_filepath)):
+        filename = large_image_array_filepath[i]
+        path = f'{large_images_directory}/{filename}'
+        large_image_array_filepath[i] = path
+
+    # print(large_image_array_filepath)
+
+    if len(small_images_dir) == len(large_images_dir) == len(large_image_array_filepath):
+        is_equal_len = True
+
+    if is_equal_len:
+        for i in range(len(small_images_dir)):
+            is_path_good = False
+            small_image_path = f'{small_images_directory}/{small_images_dir[i]}'
+            large_image_path = f'{large_images_directory}/{large_images_dir[i]}'
+
+            if large_image_path == large_image_array_filepath[i]:
+                is_path_good = True
+
+            # print(f'large_image_path: {large_image_path}\nlarge_image_array_filepath[i]: {large_image_array_filepath[i]:}')
+
+            if not is_path_good:
+                print("path is bad\nerror!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+            small_image = PhotoImage(master=field.small_field_canvas, file=small_image_path)
+            large_image = PhotoImage(master=field.large_image_canvas, file=large_image_path)
+
+            small_images_of_houses_array.append(small_image)
+            large_images_of_houses_array.append(large_image)
+
+    return small_images_of_houses_array, large_images_of_houses_array, large_image_array_filepath
+
+
+def HousesImagesInArray_2(small_images_of_houses_array, large_images_of_houses_array, large_image_array_filepath):
+    i = 0
+    while i < AMOUNT_OF_HOUSES:
+        x = random.randint(0, 9)
+        y = random.randint(0, 9)
+
+        if field.small_image_array[x][y] == 0 and field.large_image_array[x][y] == 0:
+            field.small_image_array[x][y] = small_images_of_houses_array[i]
+            field.large_image_array[x][y] = large_images_of_houses_array[i]
+            field.large_image_array_filepath[x][y] = large_image_array_filepath[i]
+            i += 1
+
+
+def ImagesInArray_2(small_images_array, large_images_array, large_image_array_filepath):
+    # Filling array from directory
+    x = y = 0
+
+    # if len(small_images_array) != len(large_images_array):
+    #     print(f'len(small_images_array) != len(large_images_array)\nerror!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
+    for i in range(len(small_images_array)):
+        is_done = False
+        while not is_done:
+            if field.small_image_array[x][y] == 0 and field.large_image_array[x][y] == 0:
+                field.small_image_array[x][y] = small_images_array[i]
+                field.large_image_array[x][y] = large_images_array[i]
+                field.large_image_array_filepath[x][y] = large_image_array_filepath[i]
+                is_done = True
+            else:
+                x += 1
+                if x == 10:
+                    x = 0
+                    y += 1
+                if y == 10:
+                    break
+
+        x += 1
+        if x == 10:
+            x = 0
+            y += 1
+        if y == 10:
+            break
+
+    # if len(small_images_array) != len(large_images_array):
+    #     print(f'len(small_images_array) != len(large_images_array)\nerror!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    #
+    # for i in range(len(small_images_array)):
+    #     is_done = False
+    #     while not is_done:
+    #         if field.small_image_array[x][y] == 0 and field.large_image_array[x][y] == 0:
+    #             field.small_image_array[x][y] = small_images_array[i]
+    #             field.large_image_array[x][y] = large_images_array[i]
+    #             is_done = True
+    #         else:
+    #             y += 1
+    #             if y == 10:
+    #                 y = 0
+    #                 x += 1
+    #             if x == 10:
+    #                 break
+    #
+    #     y += 1
+    #     if y == 10:
+    #         y = 0
+    #         x += 1
+    #     if x == 10:
+    #         break
+
+
+def MinesInArrays_2(mines_array, small_mines_images_dir, large_mines_images_dir):
+    counter = 0
+
+    small_temp_array = []
+    large_temp_array = []
+
+    for file in os.listdir(small_mines_images_dir):
+        if counter < AMOUNT_OF_MINES:
+            image_name = file
+            image_path = f"{small_mines_images_dir}/{image_name}"
+            image = PhotoImage(master=field.small_field_canvas, file=image_path)
+
+            small_temp_array.append(image)
+
+            counter += 1
+
+    # print()
+    # print()
+    # print()
+    # print()
+    # print()
+    # print()
+    for z in range(AMOUNT_OF_MINES):
+        mines_array[z].small_img = small_temp_array[z]
+
+        # Add images in image array
+        field.small_image_array[mines_array[z].array_x][mines_array[z].array_y] = small_temp_array[z]
+
+        # print(f'mines_array[z].array_x][mines_array[z].array_y: {mines_array[z].array_x}, {mines_array[z].array_y}')
+        # print(
+        #     f'small_image_array[{mines_array[z].array_x}][{mines_array[z].array_y}]: {field.small_image_array[mines_array[z].array_x][mines_array[z].array_y]}')
+
+    for i in range(len(mines_array)):
+        field.mines_coord.append([mines_array[i].array_y, mines_array[i].array_x])
+
+    counter = 0
+    for file in os.listdir(large_mines_images_dir):
+        if counter < AMOUNT_OF_MINES:
+            image_name = file
+            image_path = f"{large_mines_images_dir}/{image_name}"
+            image = PhotoImage(master=field.large_image_canvas, file=image_path)
+
+            large_temp_array.append(image)
+
+            counter += 1
+
+    for i in range(AMOUNT_OF_MINES):
+        mines_array[i].large_img = large_temp_array[i]
+
+        # Add images in image array
+        field.large_image_array[mines_array[i].array_x][mines_array[i].array_y] = large_temp_array[i]
+
+
 def main():
     # Creating the main window of an application
     win_size = f'{WINDOW_X}x{WINDOW_Y}'
@@ -707,9 +886,13 @@ def main():
     # Put mines on coordinates
     PutMines(mines_array)
 
-    # Add images of mines in arrays
-    MinesInArrays(mines_array, "../../files/small_mines_images", field.small_image_array, True)
-    MinesInArrays(mines_array, "../../files/large_mines_images", field.large_image_array, False)
+    # # Add images of mines in arrays
+    # MinesInArrays(mines_array, "../../files/small_mines_images", field.small_image_array, True)
+    # MinesInArrays(mines_array, "../../files/large_mines_images", field.large_image_array, False)
+
+    small_mines_images_dir = "E:/Projects/Pycharm Projects/sapper/files/small_mines_images"
+    large_mines_images_dir = "E:/Projects/Pycharm Projects/sapper/files/large_mines_images"
+    MinesInArrays_2(mines_array, small_mines_images_dir, large_mines_images_dir)
 
     # small_images_of_houses_array, large_images_of_houses_array, large_image_array_filepath = LoadAndMixImages(
     #     "../../files/small_images_houses",
@@ -721,18 +904,24 @@ def main():
     # large_images_of_houses_array = LoadImages_2("../../files/large_images_houses")
     # large_image_array_filepath = LoadPath("../../files/large_images_houses")
 
-    small_images_of_houses_array, large_images_of_houses_array, large_image_array_filepath = LoadData("../../files/small_images_houses", "../../files/large_images_houses")
+    # small_images_of_houses_array, large_images_of_houses_array, large_image_array_filepath = LoadData("../../files/small_images_houses", "../../files/large_images_houses")
 
-    HousesImagesInArray(small_images_of_houses_array, field.small_image_array, [], False)
-    HousesImagesInArray(large_images_of_houses_array, field.large_image_array, large_image_array_filepath, True)
+    small_images_of_houses_array, large_images_of_houses_array, large_image_array_filepath = LoadDataInArrays(
+        "E:/Projects/Pycharm Projects/sapper/files/small_images_houses",
+        "E:/Projects/Pycharm Projects/sapper/files/large_images_houses")
+
+    # HousesImagesInArray(small_images_of_houses_array, field.small_image_array, [], False)
+    # HousesImagesInArray(large_images_of_houses_array, field.large_image_array, large_image_array_filepath, True)
+
+    HousesImagesInArray_2(small_images_of_houses_array, large_images_of_houses_array, large_image_array_filepath)
 
     # funct(small_images_of_houses_array, large_images_of_houses_array, large_image_array_filepath)
 
     # First check only for mines
     CheckForChainReaction()
 
-    small_directory = "../../files/small_images"
-    large_directory = "../../files/large_images"
+    small_directory = "E:/Projects/Pycharm Projects/sapper/files/small_images"
+    large_directory = "E:/Projects/Pycharm Projects/sapper/files/large_images"
     # small_images_array, large_images_array, large_image_array_filepath = LoadAndMixImages(small_directory,
     #                                                                                       large_directory)
 
@@ -740,11 +929,16 @@ def main():
     # large_images_array = LoadImages_2("../../files/large_images_houses")
     # large_image_array_filepath = LoadPath("../../files/large_images_houses")
 
-    small_images_array, large_images_array, large_image_array_filepath = LoadData(small_directory, large_directory)
+    # small_images_array, large_images_array, large_image_array_filepath = LoadData(small_directory, large_directory)
 
-    # Filling image arrays
-    ImagesInArray(small_images_array, field.small_image_array, [], False)
-    ImagesInArray(large_images_array, field.large_image_array, large_image_array_filepath, True)
+    small_images_array, large_images_array, large_image_array_filepath = LoadDataInArrays(small_directory,
+                                                                                          large_directory)
+
+    # # Filling image arrays
+    # ImagesInArray(small_images_array, field.small_image_array, [], False)
+    # ImagesInArray(large_images_array, field.large_image_array, large_image_array_filepath, True)
+
+    ImagesInArray_2(small_images_array, large_images_array, large_image_array_filepath)
 
     # Add arrow image to Player class
     images = []
@@ -765,8 +959,12 @@ def main():
     player.image_canvas_id = field.small_field_canvas.create_image(player.current_x, player.current_y, anchor=NW,
                                                                    image=image)
 
-    for i in range(10):
-        print(field.large_image_array_filepath[i])
+    # print("state of cell array:")
+    # for el in field.state_of_cell_array:
+    #     print(el)
+
+    # for i in range(10):
+    #     print(field.large_image_array_filepath[i])
 
     # Arrow(player.direction)
     # Rectangle(True, "None")

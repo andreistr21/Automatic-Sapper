@@ -74,7 +74,7 @@ class Field(object):
         for i in range(self.columns):
             for j in range(self.rows):
 
-                small_image_name = self.small_image_array[column][row]
+                small_image_name = self.small_image_array[row][column]
 
                 self.small_field_canvas.image = small_image_name
                 self.canvas_small_images.append(

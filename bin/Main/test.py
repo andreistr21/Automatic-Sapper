@@ -1,14 +1,14 @@
+rows = 3
+columns = 5
 
-def fun():
-    list = []
+small_image_array = [[0 for i in range(rows)] for j in range(columns)]
 
-    list.append(10)
-    list.append(7)
-    list.append(3)
-    list.append(15)
-    list.append(8)
+for el in small_image_array:
+    print(el)
 
-    return list
+small_image_array[2][1] = 2
 
+print()
+for el in small_image_array:
+    print(el)
 
-print(fun())

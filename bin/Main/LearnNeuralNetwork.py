@@ -130,7 +130,7 @@ def main():
     history = model.fit(x_train, y_train, epochs=AMOUNT_OF_EPOCHS, validation_data=(x_val, y_val))
     print('After train #2')
 
-    model.save("../../files/Neural_networks/model/training_test")
+    model.save("../../files/Neural_networks/model/training_2")
 
     print('Model saved')
 

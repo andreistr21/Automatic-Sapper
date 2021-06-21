@@ -16,6 +16,6 @@ class NeuralNetwork:
 
         prediction = self.model.predict([image])
 
-        return int(prediction[0][0])
+        return prediction
 
 
