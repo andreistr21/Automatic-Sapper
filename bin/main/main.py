@@ -676,6 +676,7 @@ def LoadData(small_directory, large_directory):
 
     return small_array, large_array, path_array
 
+
 def main():
     # Creating the main window of an application
     win_size = f'{WINDOW_X}x{WINDOW_Y}'
