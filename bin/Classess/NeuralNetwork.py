@@ -5,7 +5,7 @@ import numpy as np
 
 class NeuralNetwork:
     def __init__(self):
-        self.model = tf.keras.models.load_model("../../files/Neural_networks/model/training_2")
+        self.model = tf.keras.models.load_model("../../files/Neural_networks/model/training_500_epochs_ser")
 
     def Prediction(self, x, y, field):
         IMG_SIZE = 400

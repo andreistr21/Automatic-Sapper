@@ -1,14 +1,5 @@
-rows = 3
-columns = 5
+import matplotlib.pyplot as plt
 
-small_image_array = [[0 for i in range(rows)] for j in range(columns)]
+plt.figure(figsize=(5, 5))
 
-for el in small_image_array:
-    print(el)
-
-small_image_array[2][1] = 2
-
-print()
-for el in small_image_array:
-    print(el)
-
+plt.show()

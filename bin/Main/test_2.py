@@ -20,7 +20,7 @@ def prepare(filepath):
     return new_array.reshape(1, IMG_SIZE, IMG_SIZE, 3)
 
 
-model = tf.keras.models.load_model("../../files/Neural_networks/model/training_2")
+model = tf.keras.models.load_model("../../files/Neural_networks/model/training_50_epochs")
 model.summary()
 
 test = prepare("E:/Projects/Pycharm Projects/sapper/files/large_images_houses/IMG_2573.png")

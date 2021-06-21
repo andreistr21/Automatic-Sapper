@@ -260,6 +260,8 @@ def CheckIfItIsHouse(x, y):
     house = prediction[0][0]
     other = prediction[0][1]
 
+    print(f'prediction: {prediction}')
+
     if house > other:
         prediction = 0
     else:
